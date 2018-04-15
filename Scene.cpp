@@ -12,12 +12,14 @@
 
 #include "Ray.h"
 
+
+using namespace std;
 using namespace Math;
 
 
-void Scene::AddPrimitive(IPrimitive* primitive)
+void Scene::AddPrimitive(shared_ptr<IPrimitive> primitive)
 {
-	m_primList.push_back(primitive);
+	m_primList.emplace_back(primitive);
 }
 
 

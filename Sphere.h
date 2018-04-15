@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "IMaterial.h"
 #include "IPrimitive.h"
 
 
@@ -20,9 +21,18 @@ public:
 		, m_radius(radius)
 	{}
 
+	static std::shared_ptr<IPrimitive> Make(Math::Vector3 center, float radius);
+
 	bool Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const final;
+
+	void SetMaterial(std::shared_ptr<IMaterial> material) final
+	{
+		m_material = material;
+	}
+	const IMaterial* GetMaterial() const final { return m_material.get(); }
 
 private:
 	Math::Vector3	m_center{ 0.0f, 0.0f, 0.0f };
 	float			m_radius{ 1.0f };
+	std::shared_ptr<IMaterial> m_material;
 };

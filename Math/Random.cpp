@@ -18,4 +18,13 @@
 namespace Math
 {
     RandomNumberGenerator g_RNG;
+
+	void RandomNumberGenerator::SetSeedPIDTime()
+	{
+		uint32_t seed = 0;
+		seed += GetCurrentProcessId();
+		seed += static_cast<uint32_t>(std::time(nullptr));
+
+		SetSeed(seed);
+	}
 }

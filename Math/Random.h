@@ -57,6 +57,8 @@ namespace Math
             m_gen.seed(s);
         }
 
+		void SetSeedPIDTime();
+
     private:
 
         std::random_device m_rd;

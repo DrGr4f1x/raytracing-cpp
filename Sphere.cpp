@@ -10,7 +10,15 @@
 
 #include "Sphere.h"
 
+
+using namespace std;
 using namespace Math;
+
+
+shared_ptr<IPrimitive> Sphere::Make(Vector3 center, float radius)
+{
+	return make_shared<Sphere>(center, radius);
+}
 
 
 bool Sphere::Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const
@@ -29,6 +37,7 @@ bool Sphere::Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const
 			hit.t = temp;
 			hit.pos = ray.Eval(hit.t);
 			hit.normal = (hit.pos - m_center) / m_radius;
+			hit.material = m_material.get();
 			return true;
 		}
 		temp = (-b + sqrtf(discriminant)) / a;
@@ -37,6 +46,7 @@ bool Sphere::Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const
 			hit.t = temp;
 			hit.pos = ray.Eval(hit.t);
 			hit.normal = (hit.pos - m_center) / m_radius;
+			hit.material = m_material.get();
 			return true;
 		}
 	}
