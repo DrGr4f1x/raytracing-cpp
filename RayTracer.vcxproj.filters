@@ -61,6 +61,9 @@
     <ClInclude Include="Dielectric.h">
       <Filter>RayTracer</Filter>
     </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>RayTracer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -84,6 +87,9 @@
       <Filter>RayTracer</Filter>
     </ClCompile>
     <ClCompile Include="Dielectric.cpp">
+      <Filter>RayTracer</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
       <Filter>RayTracer</Filter>
     </ClCompile>
   </ItemGroup>
