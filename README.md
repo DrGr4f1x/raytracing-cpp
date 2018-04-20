@@ -4,9 +4,12 @@ This is my hobby ray tracer, built as a learning project.  I'm mainly following 
 
 My goals are to explore some threading and SIMD optimizations, spatial data structures, and material models.  And of course to have some fun!
 
-The ray tracer currently renders Lambertian, metallic, and dielectric spheres, and generates the cover image on Peter Shirley's book.  I'm using my desktop PC and laptop for performance testing.
-* Desktop specs: Intel i7 4790K, 32 GB RAM, NVidia 970 GPU.
-* Laptop specs: MSI GS60 Ghost Pro, with Intel i7 6700HQ, 16 GB RAM, NVidia 970M GPU.
+The ray tracer currently renders Lambertian, metallic, and dielectric spheres (no lighting), and generates the cover image on Peter Shirley's book.  I'm using my desktop PC and laptop for performance testing.
+* Desktop specs: Intel i7 4790K (4.00 GHz), 32 GB RAM, NVidia 970 GPU.
+* Laptop specs: MSI GS60 Ghost Pro, with Intel i7 6700HQ (2.60 GHz), 16 GB RAM, NVidia 970M GPU.
+
+Build environment:
+* Windows 10, Visual Studio 2017 15.6.5, C++ (x64)
 
 ## [01 Basic Ray Tracer](https://github.com/DrGr4f1x/raytracing-cpp/releases/tag/0.1-basic)
 This is my initial checkpoint, totally unoptimized.  Here are current performance numbers (1280 x 720, 16 samples):
@@ -16,3 +19,4 @@ Machine | Primary rays per second | Total rays per second
 Desktop | 48.1 KRays / sec | 128.2 KRays / sec
 Laptop | 38.8 KRays / sec | 104.1 KRays / sec
 
+![Screenshot](/Screenshots/Image_16x.jpg?raw=true "Screenshot")
