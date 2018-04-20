@@ -57,7 +57,7 @@ namespace Math
             m_gen.seed(s);
         }
 
-		void SetSeedPIDTime();
+		uint32_t SetSeedPIDTime();
 
     private:
 
