@@ -8,6 +8,9 @@ The ray tracer currently renders Lambertian, metallic, and dielectric spheres, a
 * Desktop specs: Intel i7 4790K, 32 GB RAM, NVidia 970 GPU.
 * Laptop specs: MSI GS60 Ghost Pro, with Intel i7 6700HQ, 16 GB RAM, NVidia 970M GPU.
 
+Build environment:
+* Windows 10, Visual Studio 2017 15.6.5, C++ (x64)
+
 ## [01 Basic Ray Tracer](https://github.com/DrGr4f1x/raytracing-cpp/releases/tag/0.1-basic)
 This is my initial checkpoint, totally unoptimized.  Here are current performance numbers (1280 x 720, 16 samples):
 
