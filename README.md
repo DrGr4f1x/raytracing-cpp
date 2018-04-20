@@ -15,7 +15,7 @@ Build environment:
 This is my initial checkpoint, totally unoptimized.  Here are current performance numbers (1280 x 720, 16 samples):
 
 Machine | Primary rays per second | Total rays per second | Speedup (total rays)
-------- | ----------------------- | ---------------------
+------- | ----------------------- | --------------------- | --------------------
 Desktop | 48.1 KRays / sec | 128.2 KRays / sec | 1.0x
 Laptop | 38.8 KRays / sec | 104.1 KRays / sec | 1.0x
 
@@ -23,7 +23,7 @@ Laptop | 38.8 KRays / sec | 104.1 KRays / sec | 1.0x
 I added a threaded render loop, which generated the image in 8x8 pixel tiles, using parallel_for.  This results in approximately 3.4x speedup.
 
 Machine | Primary rays per second | Total rays per second | Speedup (total rays)
-------- | ----------------------- | ---------------------
+------- | ----------------------- | --------------------- | --------------------
 Desktop | 163.2 KRays / sec | 434.0 KRays / sec | 3.38x
 Laptop | 133.1 KRays / sec | 354.0 KRays / sec | 3.4x
 
