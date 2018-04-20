@@ -16,3 +16,4 @@ Machine | Primary rays per second | Total rays per second
 Desktop | 48.1 KRays / sec | 128.2 KRays / sec
 Laptop | 38.8 KRays / sec | 104.1 KRays / sec
 
+![Screenshot](/Screenshots/Image_16x.jpg?raw=true "Screenshot")
