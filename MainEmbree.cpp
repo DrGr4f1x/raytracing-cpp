@@ -30,7 +30,7 @@ using namespace Math;
 // Image parameters
 constexpr int IMAGE_WIDTH = 1280;
 constexpr int IMAGE_HEIGHT = 720;
-constexpr int NUM_SAMPLES = 4;
+constexpr int NUM_SAMPLES = 256;
 constexpr float INV_SAMPLES = 1.0f / static_cast<float>(NUM_SAMPLES);
 constexpr float ASPECT = static_cast<float>(IMAGE_WIDTH) / static_cast<float>(IMAGE_HEIGHT);
 constexpr int MAX_RECURSION = 50;
@@ -123,7 +123,9 @@ void RandomScene()
 
 void SphereBoundsFunc(const RTCBoundsFunctionArguments* args)
 {
-	const Sphere* sphere = spheres[args->primID].sphere.get();
+	EmbreeSphere* embSphere = (EmbreeSphere*)args->geometryUserPtr;
+	Sphere* sphere = embSphere->sphere.get();
+
 	RTCBounds* bounds = args->bounds_o;
 	bounds->lower_x = sphere->GetCenterX() - sphere->GetRadius();
 	bounds->lower_y = sphere->GetCenterY() - sphere->GetRadius();
@@ -138,7 +140,10 @@ void SphereIntersectFunc(const RTCIntersectFunctionNArguments* args)
 {
 	int* valid = args->valid;
 	void* ptr = args->geometryUserPtr;
-	RTCRayHit* rayhit = (RTCRayHit*)args->rayhit;
+	unsigned int N = args->N;
+	RTCRayHitN* rayhit = (RTCRayHitN*)args->rayhit;
+	RTCRayN* rays = RTCRayHitN_RayN(rayhit, N);
+	RTCHitN* hits = RTCRayHitN_HitN(rayhit, N);
 	unsigned int primID = args->primID;
 
 	EmbreeSphere* embSphere = (EmbreeSphere*)args->geometryUserPtr;
@@ -148,8 +153,11 @@ void SphereIntersectFunc(const RTCIntersectFunctionNArguments* args)
 
 	if (!valid[0]) return;
 
-	const Vector3 org = Vector3(rayhit->ray.org_x, rayhit->ray.org_y, rayhit->ray.org_z);
-	const Vector3 dir = Vector3(rayhit->ray.dir_x, rayhit->ray.dir_y, rayhit->ray.dir_z);
+	const Vector3 org = Vector3(RTCRayN_org_x(rays, N, 0), RTCRayN_org_y(rays, N, 0), RTCRayN_org_z(rays, N, 0));
+	const Vector3 dir = Vector3(RTCRayN_dir_x(rays, N, 0), RTCRayN_dir_y(rays, N, 0), RTCRayN_dir_z(rays, N, 0));
+	float& ray_tnear = RTCRayN_tnear(rays, N, 0);
+	float& ray_tfar = RTCRayN_tfar(rays, N, 0);
+
 	const Vector3 v = org - sphere->GetCenter();
 	const float A = Dot(dir, dir);
 	const float B = 2.0f * Dot(v, dir);
@@ -168,66 +176,28 @@ void SphereIntersectFunc(const RTCIntersectFunctionNArguments* args)
 	potentialHit.geomID = embSphere->geomId;
 	potentialHit.primID = primID;
 
-	if ((rayhit->ray.tnear < t0) & (t0 < rayhit->ray.tfar))
+	if ((ray_tnear < t0) & (t0 < ray_tfar))
 	{
-		int imask;
-		bool mask = 1;
-		{
-			imask = mask ? -1 : 0;
-		}
-
 		const Vector3 Ng = org + t0 * dir - sphere->GetCenter();
 		potentialHit.Ng_x = Ng.GetX();
 		potentialHit.Ng_y = Ng.GetY();
 		potentialHit.Ng_z = Ng.GetZ();
 
-		RTCFilterFunctionNArguments fargs;
-		fargs.valid = (int*)&imask;
-		fargs.geometryUserPtr = ptr;
-		fargs.context = args->context;
-		fargs.ray = (RTCRayN *)args->rayhit;
-		fargs.hit = (RTCHitN*)&potentialHit;
-		fargs.N = 1;
-
-		const float old_t = rayhit->ray.tfar;
-		rayhit->ray.tfar = t0;
-		rtcFilterIntersection(args, &fargs);
-
-		if (imask == -1)
-			rayhit->hit = potentialHit;
-		else
-			rayhit->ray.tfar = old_t;
+		ray_tfar = t0;
+		
+		rtcCopyHitToHitN(hits, &potentialHit, N, 0);
 	}
 
-	if ((rayhit->ray.tnear < t1) & (t1 < rayhit->ray.tfar))
+	if ((ray_tnear < t1) & (t1 < ray_tfar))
 	{
-		int imask;
-		bool mask = 1;
-		{
-			imask = mask ? -1 : 0;
-		}
-
 		const Vector3 Ng = org + t1 * dir - sphere->GetCenter();
 		potentialHit.Ng_x = Ng.GetX();
 		potentialHit.Ng_y = Ng.GetY();
 		potentialHit.Ng_z = Ng.GetZ();
 
-		RTCFilterFunctionNArguments fargs;
-		fargs.valid = (int*)&imask;
-		fargs.geometryUserPtr = ptr;
-		fargs.context = args->context;
-		fargs.ray = (RTCRayN *)args->rayhit;
-		fargs.hit = (RTCHitN*)&potentialHit;
-		fargs.N = 1;
-
-		const float old_t = rayhit->ray.tfar;
-		rayhit->ray.tfar = t1;
-		rtcFilterIntersection(args, &fargs);
-
-		if (imask == -1)
-			rayhit->hit = potentialHit;
-		else
-			rayhit->ray.tfar = old_t;
+		ray_tfar = t1;
+	
+		rtcCopyHitToHitN(hits, &potentialHit, N, 0);
 	}
 }
 
@@ -381,6 +351,55 @@ Vector3 LinearToSRGB(Vector3 linearRGB)
 }
 
 
+Vector3 GetColor(const Ray& ray, const RTCScene& scene, int depth, uint32_t& state)
+{
+	Hit hit;
+	++s_totalRays;
+
+	RTCIntersectContext context;
+	rtcInitIntersectContext(&context);
+
+	RTCRayHit rayHit;
+	rayHit.ray.org_x = ray.org.GetX();
+	rayHit.ray.org_y = ray.org.GetY();
+	rayHit.ray.org_z = ray.org.GetZ();
+	rayHit.ray.dir_x = ray.dir.GetX();
+	rayHit.ray.dir_y = ray.dir.GetY();
+	rayHit.ray.dir_z = ray.dir.GetZ();
+	rayHit.ray.tnear = 0.001f;
+	rayHit.ray.tfar = FLT_MAX;
+	rayHit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
+	rayHit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
+	rayHit.hit.primID = RTC_INVALID_GEOMETRY_ID;
+
+	rtcIntersect1(scene, &context, &rayHit);
+
+	if (rayHit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
+	{
+		Ray scattered;
+		Vector3 attenuation;
+
+		hit.pos = ray.Eval(rayHit.ray.tfar);
+		hit.t = rayHit.ray.tfar;
+		hit.normal = Normalize(Vector3(rayHit.hit.Ng_x, rayHit.hit.Ng_y, rayHit.hit.Ng_z));
+		const IMaterial* material = spheres[rayHit.hit.geomID].sphere->GetMaterial();
+
+		if (depth < MAX_RECURSION && material->Scatter(ray, hit, attenuation, scattered, state))
+		{
+			return attenuation * GetColor(scattered, scene, depth + 1, state);
+		}
+		else
+		{
+			return Vector3(kZero);
+		}
+	}
+
+	Vector3 unitDir = Normalize(ray.Direction());
+	float t = 0.5f * (unitDir.GetY() + 1.0f);
+	return (1.0f - t) * Vector3(1.0f, 1.0f, 1.0f) + t * Vector3(0.5f, 0.7f, 1.0f);
+}
+
+
 void RenderSinglePixel(const RTCScene& scene, const Camera& camera, Image& image, uint32_t& state, int i, int j)
 {
 	Vector3 color(kZero);
@@ -398,35 +417,7 @@ void RenderSinglePixel(const RTCScene& scene, const Camera& camera, Image& image
 
 		auto ray = camera.GetRay(u, v, state);
 
-		RTCRayHit rayHit;
-		rayHit.ray.org_x = ray.org.GetX();
-		rayHit.ray.org_y = ray.org.GetY();
-		rayHit.ray.org_z = ray.org.GetZ();
-		rayHit.ray.dir_x = ray.dir.GetX();
-		rayHit.ray.dir_y = ray.dir.GetY();
-		rayHit.ray.dir_z = ray.dir.GetZ();
-		rayHit.ray.tnear = 0.001f;
-		rayHit.ray.tfar = FLT_MAX;
-		rayHit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
-		rayHit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
-		rayHit.hit.primID = RTC_INVALID_GEOMETRY_ID;
-
-		rtcIntersect1(scene, &context, &rayHit);
-
-		if (rayHit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
-		{
-			const Sphere* sphere = spheres[rayHit.hit.geomID].sphere.get();;
-			Vector3 atten;
-			sphere->GetMaterial()->Scatter(ray, hit, atten, scattered, state);
-
-			color += atten;
-		}
-		else
-		{
-			Vector3 unitDir = Normalize(ray.Direction());
-			float t = 0.5f * (unitDir.GetY() + 1.0f);
-			color += (1.0f - t) * Vector3(1.0f, 1.0f, 1.0f) + t * Vector3(0.5f, 0.7f, 1.0f);
-		}
+		color += GetColor(ray, scene, 0, state);
 	}
 
 	color = color * INV_SAMPLES;
