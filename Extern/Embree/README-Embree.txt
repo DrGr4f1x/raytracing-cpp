@@ -1,0 +1,1 @@
+Copy the Embree v3.1.0 include and lib directories here, alongside this file.

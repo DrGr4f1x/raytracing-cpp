@@ -11,7 +11,7 @@ public:
 		, m_fuzz(fuzz)
 	{}
 
-	bool Scatter(const Ray& ray, const Hit& hit, Math::Vector3& attenuation, Ray& scattered, Math::RandomNumberGenerator& rng) const override;
+	bool Scatter(const Ray& ray, const Hit& hit, Math::Vector3& attenuation, Ray& scattered, uint32_t& state) const override;
 
 	static std::shared_ptr<IMaterial> Make(Math::Vector3 m_albedo, float fuzz);
 

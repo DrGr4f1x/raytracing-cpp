@@ -29,9 +29,9 @@ void Camera::LookAt(Vector3 pos, Vector3 target, Vector3 up, float fovY, float a
 }
 
 
-Ray Camera::GetRay(float u, float v, RandomNumberGenerator& rng) const
+Ray Camera::GetRay(float u, float v, uint32_t& state) const
 {
-	Vector3 rndDisk = m_lensRadius * UniformUnitDisk(rng);
+	Vector3 rndDisk = m_lensRadius * UniformUnitDisk(state);
 	Vector3 offset = m_u * rndDisk.GetX() + m_v * rndDisk.GetY();
 	return Ray(m_origin + offset, m_lowerLeft + u * m_horizontal + v * m_vertical - m_origin - offset);
 }

@@ -8,7 +8,24 @@
 using namespace Math;
 
 
-Vector3 UniformUnitSphere3d(RandomNumberGenerator& rng)
+static uint32_t XorShift32(uint32_t& state)
+{
+	uint32_t x = state;
+	x ^= x << 13;
+	x ^= x >> 17;
+	x ^= x << 15;
+	state = x;
+	return x;
+}
+
+
+float UniformFloat01(uint32_t& state)
+{
+	return (XorShift32(state) & 0xFFFFFF) / 16777216.0f;
+}
+
+
+Vector3 UniformUnitSphere3d(uint32_t& state)
 {
 	/*float phi = rng.NextFloat(XM_2PI);
 	float cosTheta = rng.NextFloat(-1.0f, 1.0f);
@@ -25,13 +42,13 @@ Vector3 UniformUnitSphere3d(RandomNumberGenerator& rng)
 
 	Vector3 p;
 	do {
-		p = 2.0f * Vector3(rng.NextFloat(), rng.NextFloat(), rng.NextFloat()) - Vector3(1.0f, 1.0f, 1.0f);
+		p = 2.0f * Vector3(UniformFloat01(state), UniformFloat01(state), UniformFloat01(state)) - Vector3(kOne);
 	} while (LengthSquare(p) >= 1.0f);
 	return p;
 }
 
 
-Vector3 UniformUnitDisk(RandomNumberGenerator& rng)
+Vector3 UniformUnitDisk(uint32_t& state)
 {
 	/*float r = rng.NextFloat();
 	float phi = rng.NextFloat(XM_2PI);
@@ -42,7 +59,7 @@ Vector3 UniformUnitDisk(RandomNumberGenerator& rng)
 
 	Vector3 p;
 	do {
-		p = 2.0f * Vector3(rng.NextFloat(), rng.NextFloat(), 0) - Vector3(1.0f, 1.0f, 0);
+		p = 2.0f * Vector3(UniformFloat01(state), UniformFloat01(state), 0.0f) - Vector3(1.0f, 1.0f, 0);
 	} while (Dot(p, p) >= 1.0f);
 	return p;
 }

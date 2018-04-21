@@ -66,4 +66,5 @@ namespace Math
     };
 
     extern RandomNumberGenerator g_RNG;
+
 };

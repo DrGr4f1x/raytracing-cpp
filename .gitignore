@@ -11,3 +11,6 @@
 *.ipdb
 *.iobj
 *.ppm
+*.db-shm
+*.db-wal
+/Extern/Embree/include/embree3

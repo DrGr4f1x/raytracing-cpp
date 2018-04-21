@@ -33,7 +33,7 @@ float Schlick(float cosine, float refractionIdx)
 }
 
 
-bool Dielectric::Scatter(const Ray& ray, const Hit& hit, Vector3& attenuation, Ray& scattered, RandomNumberGenerator& rng) const
+bool Dielectric::Scatter(const Ray& ray, const Hit& hit, Vector3& attenuation, Ray& scattered, uint32_t& state) const
 {
 	Vector3 outNormal{ kZero };
 	Vector3 reflected = Reflect(ray.Direction(), hit.normal);
@@ -64,7 +64,7 @@ bool Dielectric::Scatter(const Ray& ray, const Hit& hit, Vector3& attenuation, R
 		scattered = Ray(hit.pos, reflected);
 	}
 
-	if (rng.NextFloat() < reflectProb)
+	if (UniformFloat01(state) < reflectProb)
 	{
 		scattered = Ray(hit.pos, reflected);
 	}

@@ -10,9 +10,9 @@ using namespace std;
 using namespace Math;
 
 
-bool Lambertian::Scatter(const Ray& ray, const Hit& hit, Vector3& attenuation, Ray& scattered, RandomNumberGenerator& rng) const
+bool Lambertian::Scatter(const Ray& ray, const Hit& hit, Vector3& attenuation, Ray& scattered, uint32_t& state) const
 {
-	Vector3 target = hit.pos + hit.normal + UniformUnitSphere3d(rng);
+	Vector3 target = hit.pos + hit.normal + UniformUnitSphere3d(state);
 	scattered = Ray(hit.pos, target - hit.pos);
 	attenuation = m_albedo;
 	return true;

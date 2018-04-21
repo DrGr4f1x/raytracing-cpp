@@ -12,9 +12,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{33BCD198-DBC6-45CE-9F4E-2A63625462D7}</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
-    <RootNamespace>RayTracer</RootNamespace>
+    <ProjectGuid>{ED3A2008-363C-4886-8D00-54A019FFE35F}</ProjectGuid>
+    <RootNamespace>RayTracerEmbree</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -22,14 +21,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -44,51 +43,62 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Bin\</OutDir>
     <TargetName>$(ProjectName)_d</TargetName>
     <IntDir>Temp\$(ProjectName)$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Bin\</OutDir>
     <IntDir>Temp\$(ProjectName)$(Configuration)\</IntDir>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
-      <FloatingPointModel>Precise</FloatingPointModel>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)Extern\Embree\include</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)Extern\Embree\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>embree3.lib;tbb.lib;tbbmalloc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)Extern\Embree\include</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SolutionDir)Extern\Embree\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>embree3.lib;tbb.lib;tbbmalloc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Dielectric.cpp" />
+    <ClCompile Include="Image.cpp" />
+    <ClCompile Include="Lambertian.cpp" />
+    <ClCompile Include="MainEmbree.cpp" />
+    <ClCompile Include="Math\Random.cpp" />
+    <ClCompile Include="Metal.cpp" />
+    <ClCompile Include="Sampling.cpp" />
+    <ClCompile Include="Sphere.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp" />
+  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Dielectric.h" />
@@ -109,29 +119,11 @@
     <ClInclude Include="Metal.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Sampling.h" />
-    <ClInclude Include="Scene.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="VectorMath.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Dielectric.cpp" />
-    <ClCompile Include="Image.cpp" />
-    <ClCompile Include="Lambertian.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Math\Random.cpp" />
-    <ClCompile Include="Metal.cpp" />
-    <ClCompile Include="Sampling.cpp" />
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="Sphere.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Math\Functions.inl" />

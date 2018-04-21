@@ -13,5 +13,5 @@ public:
 		const Hit& hit, 
 		Math::Vector3& attenuation, 
 		Ray& scattered, 
-		Math::RandomNumberGenerator& rng) const = 0;
+		uint32_t& state) const = 0;
 };
