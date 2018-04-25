@@ -28,7 +28,7 @@ using namespace Math;
 // Image parameters
 constexpr int IMAGE_WIDTH = 1280;
 constexpr int IMAGE_HEIGHT = 720;
-constexpr int NUM_SAMPLES = 256;
+constexpr int NUM_SAMPLES = 16;
 constexpr float INV_SAMPLES = 1.0f / static_cast<float>(NUM_SAMPLES);
 constexpr float ASPECT = static_cast<float>(IMAGE_WIDTH) / static_cast<float>(IMAGE_HEIGHT);
 constexpr int MAX_RECURSION = 50;
@@ -41,6 +41,7 @@ constexpr int SPHERE_GRID_SIZE = 11;
 // Feature flags
 constexpr bool g_threaded = true;
 constexpr bool g_streams = false;
+constexpr bool g_recursive = false;
 
 // Stats
 atomic_size_t s_totalRays = 0;
@@ -313,7 +314,7 @@ Vector3 LinearToSRGB(Vector3 linearRGB)
 }
 
 
-Vector3 GetColor(const Ray& ray, const RTCScene& scene, int depth, uint32_t& state)
+Vector3 GetColor_Recursive(const Ray& ray, const RTCScene& scene, int depth, uint32_t& state)
 {
 	Hit hit;
 	++s_totalRays;
@@ -347,7 +348,7 @@ Vector3 GetColor(const Ray& ray, const RTCScene& scene, int depth, uint32_t& sta
 		
 		if (depth < MAX_RECURSION && materialSet.Scatter(rayHit.hit.geomID, ray, hit, attenuation, scattered, state))
 		{
-			return attenuation * GetColor(scattered, scene, depth + 1, state);
+			return attenuation * GetColor_Recursive(scattered, scene, depth + 1, state);
 		}
 		else
 		{
@@ -360,6 +361,59 @@ Vector3 GetColor(const Ray& ray, const RTCScene& scene, int depth, uint32_t& sta
 	return (1.0f - t) * Vector3(1.0f, 1.0f, 1.0f) + t * Vector3(0.5f, 0.7f, 1.0f);
 }
 
+Vector3 GetColor_Iterative(Ray ray, const RTCScene& scene, uint32_t& state)
+{
+	Hit hit;
+	++s_totalRays;
+
+	Vector3 color(kOne);
+
+	RTCIntersectContext context;
+	rtcInitIntersectContext(&context);
+
+	RTCRayHit rayHit;
+
+	int depth = 0;
+
+	do 
+	{
+		rayHit.ray.org_x = ray.org.GetX();
+		rayHit.ray.org_y = ray.org.GetY();
+		rayHit.ray.org_z = ray.org.GetZ();
+		rayHit.ray.dir_x = ray.dir.GetX();
+		rayHit.ray.dir_y = ray.dir.GetY();
+		rayHit.ray.dir_z = ray.dir.GetZ();
+		rayHit.ray.tnear = 0.001f;
+		rayHit.ray.tfar = FLT_MAX;
+		rayHit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
+		rayHit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
+		rayHit.hit.primID = RTC_INVALID_GEOMETRY_ID;
+
+		rtcIntersect1(scene, &context, &rayHit);
+
+		if (rayHit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
+		{
+			Ray scattered;
+			Vector3 attenuation;
+
+			hit.pos = ray.Eval(rayHit.ray.tfar);
+			hit.t = rayHit.ray.tfar;
+			hit.normal = Normalize(Vector3(rayHit.hit.Ng_x, rayHit.hit.Ng_y, rayHit.hit.Ng_z));
+
+			if (!materialSet.Scatter(rayHit.hit.geomID, ray, hit, attenuation, scattered, state))
+			{
+				color *= Vector3(kZero);
+				break;
+			}
+
+			ray = scattered;
+			color *= attenuation;
+			++s_totalRays;
+		}
+	} while (rayHit.hit.geomID != RTC_INVALID_GEOMETRY_ID && (depth++ < 50));
+
+	return color;
+}
 
 void RenderSinglePixel(const RTCScene& scene, const Camera& camera, Image& image, uint32_t& state, int i, int j)
 {
@@ -378,7 +432,14 @@ void RenderSinglePixel(const RTCScene& scene, const Camera& camera, Image& image
 
 		auto ray = camera.GetRay(u, v, state);
 
-		color += GetColor(ray, scene, 0, state);
+		if constexpr(g_recursive)
+		{
+			color += GetColor_Recursive(ray, scene, 0, state);
+		}
+		else
+		{
+			color += GetColor_Iterative(ray, scene, state);
+		}
 	}
 
 	color = color * INV_SAMPLES;
