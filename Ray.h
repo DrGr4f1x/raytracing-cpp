@@ -38,5 +38,5 @@ struct Hit
 	Math::Vector3 pos;
 	Math::Vector3 normal;
 	float t;
-	class IMaterial* material;
+	uint32_t geomId;
 };

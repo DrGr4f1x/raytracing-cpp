@@ -9,10 +9,8 @@
 #include "stdafx.h"
 
 #include "Camera.h"
-#include "Dielectric.h"
 #include "Image.h"
-#include "Lambertian.h"
-#include "Metal.h"
+#include "MaterialSet.h"
 #include "Sampling.h"
 #include "Scene.h"
 #include "Sphere.h"
@@ -47,6 +45,8 @@ constexpr bool g_streams = false;
 // Stats
 atomic_size_t s_totalRays = 0;
 
+MaterialSet materialSet;
+
 // Scene
 struct EmbreeSphere
 {
@@ -70,7 +70,7 @@ void AddSphere(shared_ptr<IPrimitive> sphere)
 void RandomScene()
 {
 	auto sphere = Sphere::Make(Vector3(0.0f, -1000.0f, 0.0f), 1000.0f);
-	sphere->SetMaterial(Lambertian::Make(Vector3(0.5f, 0.5f, 0.5f)));
+	materialSet.AddLambertian(Vector3(0.5f, 0.5f, 0.5f));
 	AddSphere(sphere);
 
 	for (int a = -SPHERE_GRID_SIZE; a < SPHERE_GRID_SIZE; ++a)
@@ -88,18 +88,15 @@ void RandomScene()
 
 				if (chooseMat < 0.8f) // Lambertian
 				{
-					auto material = Lambertian::Make(Vector3(g_RNG.NextFloat() * g_RNG.NextFloat(), g_RNG.NextFloat() * g_RNG.NextFloat(), g_RNG.NextFloat() * g_RNG.NextFloat()));
-					sphere->SetMaterial(material);
+					materialSet.AddLambertian(Vector3(g_RNG.NextFloat() * g_RNG.NextFloat(), g_RNG.NextFloat() * g_RNG.NextFloat(), g_RNG.NextFloat() * g_RNG.NextFloat()));
 				}
 				else if (chooseMat < 0.95f) // Metal
 				{
-					auto material = Metal::Make(Vector3(0.5f * (1.0f + g_RNG.NextFloat()), 0.5f * (1.0f + g_RNG.NextFloat()), 0.5f * (1.0f + g_RNG.NextFloat())), 0.5f * g_RNG.NextFloat());
-					sphere->SetMaterial(material);
+					materialSet.AddMetallic(Vector3(0.5f * (1.0f + g_RNG.NextFloat()), 0.5f * (1.0f + g_RNG.NextFloat()), 0.5f * (1.0f + g_RNG.NextFloat())), 0.5f * g_RNG.NextFloat());
 				}
 				else // Dielectric
 				{
-					auto material = Dielectric::Make(1.5f);
-					sphere->SetMaterial(material);
+					materialSet.AddDielectric(1.5f);
 				}
 
 				AddSphere(sphere);
@@ -108,15 +105,15 @@ void RandomScene()
 	}
 
 	sphere = Sphere::Make(Vector3(0.0f, 1.0f, 0.0f), 1.0f);
-	sphere->SetMaterial(Dielectric::Make(1.5f));
+	materialSet.AddDielectric(1.5f);
 	AddSphere(sphere);
 
 	sphere = Sphere::Make(Vector3(-4.0f, 1.0f, 0.0f), 1.0f);
-	sphere->SetMaterial(Lambertian::Make(Vector3(0.4f, 0.2f, 0.1f)));
+	materialSet.AddLambertian(Vector3(0.4f, 0.2f, 0.1f));
 	AddSphere(sphere);
 
 	sphere = Sphere::Make(Vector3(4.0f, 1.0f, 0.0f), 1.0f);
-	sphere->SetMaterial(Metal::Make(Vector3(0.7f, 0.6f, 0.5f), 0.0f));
+	materialSet.AddMetallic(Vector3(0.7f, 0.6f, 0.5f), 0.0f);
 	AddSphere(sphere);
 }
 
@@ -250,60 +247,25 @@ void SphereIntersectFuncN(const RTCIntersectFunctionNArguments* args)
 
 		if ((ray_tnear < t0) & (t0 < ray_tfar))
 		{
-			int imask;
-			bool mask = 1;
-			{
-				imask = mask ? -1 : 0;
-			}
 			const Vector3 Ng = ray_org + t0 * ray_dir - sphere->GetCenter();
 			potentialhit.Ng_x = Ng.GetX();
 			potentialhit.Ng_y = Ng.GetY();
 			potentialhit.Ng_z = Ng.GetZ();
 
-			RTCFilterFunctionNArguments fargs;
-			fargs.valid = (int*)&imask;
-			fargs.geometryUserPtr = ptr;
-			fargs.context = args->context;
-			fargs.ray = (RTCRayN*)&rtc_ray;
-			fargs.hit = (RTCHitN*)&potentialhit;
-			fargs.N = 1;
-
-			rtc_ray.ray.tfar = t0;
-			rtcFilterIntersection(args, &fargs);
-
-			if (imask == -1) {
-				ray_tfar = t0;
-				rtcCopyHitToHitN(hits, &potentialhit, N, ui);
-			}
+			
+			ray_tfar = t0;
+			rtcCopyHitToHitN(hits, &potentialhit, N, ui);
 		}
 
 		if ((ray_tnear < t1) & (t1 < ray_tfar))
 		{
-			int imask;
-			bool mask = 1;
-			{
-				imask = mask ? -1 : 0;
-			}
 			const Vector3 Ng = ray_org + t1 * ray_dir - sphere->GetCenter();
 			potentialhit.Ng_x = Ng.GetX();
 			potentialhit.Ng_y = Ng.GetY();
 			potentialhit.Ng_z = Ng.GetZ();
-
-			RTCFilterFunctionNArguments fargs;
-			fargs.valid = (int*)&imask;
-			fargs.geometryUserPtr = ptr;
-			fargs.context = args->context;
-			fargs.ray = (RTCRayN*)&rtc_ray;
-			fargs.hit = (RTCHitN*)&potentialhit;
-			fargs.N = 1;
-
-			rtc_ray.ray.tfar = t1;
-			rtcFilterIntersection(args, &fargs);
-
-			if (imask == -1) {
-				ray_tfar = t1;
-				rtcCopyHitToHitN(hits, &potentialhit, N, ui);
-			}
+			
+			ray_tfar = t1;
+			rtcCopyHitToHitN(hits, &potentialhit, N, ui);
 		}
 	}
 }
@@ -382,9 +344,8 @@ Vector3 GetColor(const Ray& ray, const RTCScene& scene, int depth, uint32_t& sta
 		hit.pos = ray.Eval(rayHit.ray.tfar);
 		hit.t = rayHit.ray.tfar;
 		hit.normal = Normalize(Vector3(rayHit.hit.Ng_x, rayHit.hit.Ng_y, rayHit.hit.Ng_z));
-		const IMaterial* material = spheres[rayHit.hit.geomID].sphere->GetMaterial();
-
-		if (depth < MAX_RECURSION && material->Scatter(ray, hit, attenuation, scattered, state))
+		
+		if (depth < MAX_RECURSION && materialSet.Scatter(rayHit.hit.geomID, ray, hit, attenuation, scattered, state))
 		{
 			return attenuation * GetColor(scattered, scene, depth + 1, state);
 		}

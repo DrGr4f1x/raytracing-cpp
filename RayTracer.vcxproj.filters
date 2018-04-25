@@ -48,20 +48,11 @@
       <Filter>RayTracer</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="IMaterial.h">
-      <Filter>RayTracer</Filter>
-    </ClInclude>
-    <ClInclude Include="Lambertian.h">
-      <Filter>RayTracer</Filter>
-    </ClInclude>
     <ClInclude Include="Sampling.h" />
-    <ClInclude Include="Metal.h">
-      <Filter>RayTracer</Filter>
-    </ClInclude>
-    <ClInclude Include="Dielectric.h">
-      <Filter>RayTracer</Filter>
-    </ClInclude>
     <ClInclude Include="Image.h">
+      <Filter>RayTracer</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialSet.h">
       <Filter>RayTracer</Filter>
     </ClInclude>
   </ItemGroup>
@@ -79,17 +70,11 @@
       <Filter>RayTracer</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Lambertian.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="Sampling.cpp" />
-    <ClCompile Include="Metal.cpp">
-      <Filter>RayTracer</Filter>
-    </ClCompile>
-    <ClCompile Include="Dielectric.cpp">
-      <Filter>RayTracer</Filter>
-    </ClCompile>
     <ClCompile Include="Image.cpp">
+      <Filter>RayTracer</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialSet.cpp">
       <Filter>RayTracer</Filter>
     </ClCompile>
   </ItemGroup>

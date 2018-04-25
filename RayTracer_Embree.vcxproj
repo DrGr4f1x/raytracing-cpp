@@ -85,12 +85,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Dielectric.cpp" />
     <ClCompile Include="Image.cpp" />
-    <ClCompile Include="Lambertian.cpp" />
     <ClCompile Include="MainEmbree.cpp" />
+    <ClCompile Include="MaterialSet.cpp" />
     <ClCompile Include="Math\Random.cpp" />
-    <ClCompile Include="Metal.cpp" />
     <ClCompile Include="Sampling.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -101,11 +99,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="Dielectric.h" />
     <ClInclude Include="Image.h" />
-    <ClInclude Include="IMaterial.h" />
     <ClInclude Include="IPrimitive.h" />
-    <ClInclude Include="Lambertian.h" />
+    <ClInclude Include="MaterialSet.h" />
     <ClInclude Include="Math\BoundingPlane.h" />
     <ClInclude Include="Math\BoundingSphere.h" />
     <ClInclude Include="Math\Common.h" />
@@ -116,7 +112,6 @@
     <ClInclude Include="Math\Scalar.h" />
     <ClInclude Include="Math\Transform.h" />
     <ClInclude Include="Math\Vector.h" />
-    <ClInclude Include="Metal.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Sampling.h" />
     <ClInclude Include="Sphere.h" />

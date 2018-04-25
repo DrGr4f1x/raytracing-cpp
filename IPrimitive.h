@@ -15,6 +15,4 @@ class IPrimitive
 {
 public:
 	virtual bool Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const = 0;
-	virtual void SetMaterial(std::shared_ptr<IMaterial> material) = 0;
-	virtual const IMaterial* GetMaterial() const = 0;
 };

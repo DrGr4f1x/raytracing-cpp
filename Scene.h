@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "IMaterial.h"
 #include "IPrimitive.h"
 
 class Scene : public IPrimitive
@@ -22,9 +21,6 @@ public:
 	}
 
 	bool Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const final;
-
-	void SetMaterial(std::shared_ptr<IMaterial> material) final {}
-	const IMaterial* GetMaterial() const final { return nullptr; }
 
 private:
 	std::vector<std::shared_ptr<IPrimitive>> m_primList;

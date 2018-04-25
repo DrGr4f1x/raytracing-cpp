@@ -14,10 +14,11 @@
 using namespace std;
 using namespace Math;
 
+static uint32_t s_geomId{ 0 };
 
 shared_ptr<IPrimitive> Sphere::Make(Vector3 center, float radius)
 {
-	return make_shared<Sphere>(center, radius);
+	return make_shared<Sphere>(center, radius, s_geomId++);
 }
 
 
@@ -37,7 +38,7 @@ bool Sphere::Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const
 			hit.t = temp;
 			hit.pos = ray.Eval(hit.t);
 			hit.normal = (hit.pos - m_center) / m_radius;
-			hit.material = m_material.get();
+			hit.geomId = m_geomId;
 			return true;
 		}
 		temp = (-b + sqrtf(discriminant)) / a;
@@ -46,7 +47,7 @@ bool Sphere::Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const
 			hit.t = temp;
 			hit.pos = ray.Eval(hit.t);
 			hit.normal = (hit.pos - m_center) / m_radius;
-			hit.material = m_material.get();
+			hit.geomId = m_geomId;
 			return true;
 		}
 	}
