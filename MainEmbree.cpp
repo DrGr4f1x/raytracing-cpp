@@ -412,6 +412,10 @@ Vector3 GetColor_Iterative(Ray ray, const RTCScene& scene, uint32_t& state)
 		}
 	} while (rayHit.hit.geomID != RTC_INVALID_GEOMETRY_ID && (depth++ < 50));
 
+	Vector3 unitDir = Normalize(ray.Direction());
+	float t = 0.5f * (unitDir.GetY() + 1.0f);
+	color *= (1.0f - t) * Vector3(1.0f, 1.0f, 1.0f) + t * Vector3(0.5f, 0.7f, 1.0f);
+
 	return color;
 }
 
