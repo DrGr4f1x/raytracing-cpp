@@ -27,4 +27,12 @@ Machine | Primary rays per second | Total rays per second | Speedup (total rays)
 Desktop | 163.2 KRays / sec | 434.0 KRays / sec | 3.38x
 Laptop | 133.1 KRays / sec | 354.0 KRays / sec | 3.4x
 
+## [03 Embree](https://github.com/DrGr4f1x/raytracing-cpp/releases/tag/0.3-embree)
+I added a reference renderer written with Embree.  Below are performance numbers for the Embree version, which is substantially faster than mine.  I'll track both versions going forward, assuming I make meaningful changes to one or the other.
+
+Machine | Primary rays per second | Total rays per second | Speedup (total rays)
+------- | ----------------------- | --------------------- | --------------------
+Desktop | 8.75 MRays / sec | 23.3 MRays / sec | 1.0x (53.7x)
+Laptop | 6.99 MRays / sec | 18.6 MRays / sec | 1.0x (52.5x)
+
 ![Screenshot](/Screenshots/Image_16x.jpg?raw=true "Screenshot")
