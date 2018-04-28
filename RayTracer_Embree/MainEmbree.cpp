@@ -527,7 +527,7 @@ int main()
 	BuildEmbreeScene(embreeDevice, embreeScene);
 
 	// Ray trace
-	if (g_threaded)
+	if constexpr(g_threaded)
 	{
 		RenderImageThreaded(embreeScene, camera, image);
 	}

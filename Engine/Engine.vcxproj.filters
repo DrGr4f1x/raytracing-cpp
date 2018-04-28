@@ -69,6 +69,15 @@
     <ClInclude Include="VectorMath.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="IAccelerator.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Enums.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereAccel.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Math\Functions.inl">
@@ -101,5 +110,8 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="SphereAccel.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

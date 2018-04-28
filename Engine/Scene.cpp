@@ -11,33 +11,50 @@
 #include "Scene.h"
 
 #include "Ray.h"
+#include "SphereAccel.h"
 
 
 using namespace std;
 using namespace Math;
 
 
-void Scene::AddPrimitive(shared_ptr<IPrimitive> primitive)
+bool Scene::Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const
 {
-	m_primList.emplace_back(primitive);
+	for (auto& p : m_accelList)
+	{
+		if (p->Intersect(ray, tMin, tMax, hit))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 
-bool Scene::Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const
+void Scene::AddSphere(const Vector3& center, float radius, uint32_t id)
 {
-	Hit tempHit;
-	bool hitAnything = false;
-	float closestHit = tMax;
+	GetSphereAccelerator()->AddSphere(center, radius, id);
+}
 
-	for (auto prim : m_primList)
+
+SphereAccelerator* Scene::GetSphereAccelerator()
+{
+	SphereAccelerator* accel = nullptr;
+	for (auto& p : m_accelList)
 	{
-		if (prim->Intersect(ray, tMin, closestHit, tempHit))
+		if (p->GetPrimitiveType() == PrimitiveType::Sphere)
 		{
-			hitAnything = true;
-			closestHit = tempHit.t;
-			hit = tempHit;
+			accel = (SphereAccelerator*)p.get();
+			break;
 		}
 	}
 
-	return hitAnything;
+	if (!accel)
+	{
+		auto newAccel = make_unique<SphereAccelerator>();
+		accel = newAccel.get();
+		m_accelList.emplace_back(move(newAccel));
+	}
+
+	return accel;
 }
