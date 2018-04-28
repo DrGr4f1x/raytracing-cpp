@@ -52,4 +52,13 @@ Machine | Primary rays per second | Total rays per second | Speedup (total rays)
 Desktop | 8.88 MRays / sec | 23.6 MRays / sec | 1.01x (51.8x)
 Laptop | 7.34 MRays / sec | 19.5 MRays / sec | 1.05x (54.4x)
 
+## [05 SOA](https://github.com/DrGr4f1x/raytracing-cpp/releases/tag/0.5-soa)
+I refactored the Scene to use a dedicated acceleration structure for spheres, with SOA layout.  I also simplified the ray-sphere intersection math slightly, and switched on the /fp:fast switch in the compiler.  Also, a previous check-in restructured the file layout.
+
+Machine | Primary rays per second | Total rays per second | Speedup (total rays)
+------- | ----------------------- | --------------------- | --------------------
+Desktop | 570.8 KRays / sec | 1517.5 KRays / sec | 3.33x
+Laptop | 134.7 KRays / sec | 358.0 KRays / sec | 1.01x
+
+
 ![Screenshot](/Screenshots/Image_16x.jpg?raw=true "Screenshot")
