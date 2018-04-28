@@ -1,8 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
+    <Filter Include="Core">
+      <UniqueIdentifier>{d225ef29-79f1-4b6e-bb65-284ff70fbd56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{a8542d19-b454-4bc7-ba51-8adcb2c8f96e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="Math\BoundingPlane.h">
       <Filter>Math</Filter>
     </ClInclude>
@@ -33,62 +39,67 @@
     <ClInclude Include="Math\Vector.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="VectorMath.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="IPrimitive.h">
-      <Filter>RayTracer</Filter>
+    <ClInclude Include="Camera.h">
+      <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Ray.h">
-      <Filter>RayTracer</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>RayTracer</Filter>
-    </ClInclude>
-    <ClInclude Include="Sphere.h">
-      <Filter>RayTracer</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Sampling.h" />
     <ClInclude Include="Image.h">
-      <Filter>RayTracer</Filter>
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="IPrimitive.h">
+      <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="MaterialSet.h">
-      <Filter>RayTracer</Filter>
+      <Filter>Core</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Math\Random.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="Scene.cpp">
-      <Filter>RayTracer</Filter>
-    </ClCompile>
-    <ClCompile Include="Sphere.cpp">
-      <Filter>RayTracer</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Sampling.cpp" />
-    <ClCompile Include="Image.cpp">
-      <Filter>RayTracer</Filter>
-    </ClCompile>
-    <ClCompile Include="MaterialSet.cpp">
-      <Filter>RayTracer</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="Math">
-      <UniqueIdentifier>{c24a70d1-2ef5-4e2f-8ee3-1e4588e3b5be}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="RayTracer">
-      <UniqueIdentifier>{e2f0e1a8-432e-4f69-a2b7-2400dba59ebf}</UniqueIdentifier>
-    </Filter>
+    <ClInclude Include="Ray.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Sampling.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="VectorMath.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Math\Functions.inl">
       <Filter>Math</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Math\Random.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialSet.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Sampling.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
 </Project>
