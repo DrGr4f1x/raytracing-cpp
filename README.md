@@ -58,7 +58,7 @@ I refactored the Scene to use a dedicated acceleration structure for spheres, wi
 Machine | Primary rays per second | Total rays per second | Speedup (total rays)
 ------- | ----------------------- | --------------------- | --------------------
 Desktop | 570.8 KRays / sec | 1517.5 KRays / sec | 3.33x
-Laptop | 134.7 KRays / sec | 358.0 KRays / sec | 1.01x
+Laptop | 384 KRays / sec | 1021 KRays / sec | 2.85x
 
 
 ![Screenshot](/Screenshots/Image_16x.jpg?raw=true "Screenshot")
