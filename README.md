@@ -39,12 +39,14 @@ Laptop | 6.99 MRays / sec | 18.6 MRays / sec | 1.0x (52.5x)
 I suspected the recursive implementation of GetColor was probably a performance sink.  I added another implementation, called GetColor_Iterative, which as the name suggests, uses a while-loop instead of recursion.  There was a slight improvement in both the native and Embree versions, but it was not particularly significant.
 
 **Native**
+
 Machine | Primary rays per second | Total rays per second | Speedup (total rays)
 ------- | ----------------------- | --------------------- | --------------------
 Desktop | 171.2 KRays / sec | 455.2 KRays / sec | 1.05x
 Laptop | 134.7 KRays / sec | 358.0 KRays / sec | 1.01x
 
 **Embree**
+
 Machine | Primary rays per second | Total rays per second | Speedup (total rays)
 ------- | ----------------------- | --------------------- | --------------------
 Desktop | 8.88 MRays / sec | 23.6 MRays / sec | 1.01x (51.8x)
