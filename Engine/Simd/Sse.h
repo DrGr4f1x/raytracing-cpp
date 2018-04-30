@@ -8,15 +8,10 @@
 
 #pragma once
 
-enum class PrimitiveType;
+extern const __m128		g_mmLookupMaskPs[16];
+extern const __m128d	g_mmLookupMaskPd[4];
 
-class IAccelerator
-{
-public:
-	virtual PrimitiveType GetPrimitiveType() const = 0;
-
-	// Intersection methods
-	virtual bool Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const = 0;
-
-	virtual void Commit() = 0;
-};
+#include "Bool4.h"
+#include "Int4.h"
+#include "UInt4.h"
+#include "Float4.h"

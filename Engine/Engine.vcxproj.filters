@@ -7,6 +7,15 @@
     <Filter Include="Math">
       <UniqueIdentifier>{a8542d19-b454-4bc7-ba51-8adcb2c8f96e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Simd">
+      <UniqueIdentifier>{16834577-386e-4ad1-b2bf-b8a36b49eb1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Simd\SSE4">
+      <UniqueIdentifier>{65d52b3b-ab04-44a9-83eb-3d692cc6feaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Simd\AVX">
+      <UniqueIdentifier>{4661e7df-2f79-40d8-9a83-12020fb13938}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\BoundingPlane.h">
@@ -78,6 +87,30 @@
     <ClInclude Include="SphereAccel.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="Simd\Simd.h">
+      <Filter>Simd</Filter>
+    </ClInclude>
+    <ClInclude Include="Simd\Sse.h">
+      <Filter>Simd\SSE4</Filter>
+    </ClInclude>
+    <ClInclude Include="Simd\Bool4.h">
+      <Filter>Simd\SSE4</Filter>
+    </ClInclude>
+    <ClInclude Include="Simd\Float4.h">
+      <Filter>Simd\SSE4</Filter>
+    </ClInclude>
+    <ClInclude Include="Simd\Int4.h">
+      <Filter>Simd\SSE4</Filter>
+    </ClInclude>
+    <ClInclude Include="Simd\Avx.h">
+      <Filter>Simd\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="Ray4.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Simd\UInt4.h">
+      <Filter>Simd\SSE4</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Math\Functions.inl">
@@ -112,6 +145,9 @@
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="SphereAccel.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Simd\Sse.cpp">
+      <Filter>Simd\SSE4</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

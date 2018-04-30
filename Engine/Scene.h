@@ -21,10 +21,11 @@ class Scene : public IPrimitive
 public:
 	
 	bool Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const final;
-
+	void Commit();
+	
 	// Spheres
 	void AddSphere(const Math::Vector3& center, float radius, uint32_t id);
-
+	
 private:
 	SphereAccelerator * GetSphereAccelerator();
 

@@ -8,15 +8,11 @@
 
 #pragma once
 
-enum class PrimitiveType;
+#if USE_SSE4
 
-class IAccelerator
+struct Ray4
 {
-public:
-	virtual PrimitiveType GetPrimitiveType() const = 0;
 
-	// Intersection methods
-	virtual bool Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const = 0;
-
-	virtual void Commit() = 0;
 };
+
+#endif

@@ -91,7 +91,7 @@ bool MaterialSet::Scatter(size_t index, const Ray& ray, const Hit& hit, Math::Ve
 	case MaterialType::Lambertian:
 	{
 		Vector3 target = hit.pos + hit.normal + UniformUnitSphere3d(state);
-		scattered = Ray(hit.pos, target - hit.pos);
+		scattered = Ray(hit.pos, Normalize(target - hit.pos));
 		attenuation = m_albedoList[index];
 		return true;
 	}
@@ -100,7 +100,7 @@ bool MaterialSet::Scatter(size_t index, const Ray& ray, const Hit& hit, Math::Ve
 	case MaterialType::Metallic:
 	{
 		Vector3 reflected = Reflect(Normalize(ray.Direction()), hit.normal);
-		scattered = Ray(hit.pos, reflected + m_miscFloatList[index] * UniformUnitSphere3d(state));
+		scattered = Ray(hit.pos, Normalize(reflected + m_miscFloatList[index] * UniformUnitSphere3d(state)));
 		attenuation = m_albedoList[index];
 		return (Dot(scattered.Direction(), hit.normal) > 0.0f);
 	}
@@ -135,16 +135,16 @@ bool MaterialSet::Scatter(size_t index, const Ray& ray, const Hit& hit, Math::Ve
 		}
 		else
 		{
-			scattered = Ray(hit.pos, reflected);
+			scattered = Ray(hit.pos, Normalize(reflected));
 		}
 
 		if (UniformFloat01(state) < reflectProb)
 		{
-			scattered = Ray(hit.pos, reflected);
+			scattered = Ray(hit.pos, Normalize(reflected));
 		}
 		else
 		{
-			scattered = Ray(hit.pos, refracted);
+			scattered = Ray(hit.pos, Normalize(refracted));
 		}
 
 		return true;

@@ -8,15 +8,10 @@
 
 #pragma once
 
-enum class PrimitiveType;
+#if USE_SSE4
+#include "Sse.h"
+#endif
 
-class IAccelerator
-{
-public:
-	virtual PrimitiveType GetPrimitiveType() const = 0;
-
-	// Intersection methods
-	virtual bool Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const = 0;
-
-	virtual void Commit() = 0;
-};
+#if USE_AVX
+#include "Avx.h"
+#endif

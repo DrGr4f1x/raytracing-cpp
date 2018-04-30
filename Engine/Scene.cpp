@@ -31,6 +31,15 @@ bool Scene::Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const
 }
 
 
+void Scene::Commit()
+{
+	for (auto& p : m_accelList)
+	{
+		p->Commit();
+	}
+}
+
+
 void Scene::AddSphere(const Vector3& center, float radius, uint32_t id)
 {
 	GetSphereAccelerator()->AddSphere(center, radius, id);

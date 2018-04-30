@@ -60,6 +60,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -73,6 +75,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -93,8 +96,16 @@
     <ClInclude Include="Math\Transform.h" />
     <ClInclude Include="Math\Vector.h" />
     <ClInclude Include="Ray.h" />
+    <ClInclude Include="Ray4.h" />
     <ClInclude Include="Sampling.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="Simd\Avx.h" />
+    <ClInclude Include="Simd\Bool4.h" />
+    <ClInclude Include="Simd\Float4.h" />
+    <ClInclude Include="Simd\Int4.h" />
+    <ClInclude Include="Simd\Simd.h" />
+    <ClInclude Include="Simd\Sse.h" />
+    <ClInclude Include="Simd\UInt4.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="SphereAccel.h" />
     <ClInclude Include="stdafx.h" />
@@ -112,6 +123,7 @@
     <ClCompile Include="Math\Random.cpp" />
     <ClCompile Include="Sampling.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Simd\Sse.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="SphereAccel.cpp" />
     <ClCompile Include="stdafx.cpp">
