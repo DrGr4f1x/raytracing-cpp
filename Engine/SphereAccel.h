@@ -10,6 +10,16 @@
 
 #include "IAccelerator.h"
 
+struct SphereList
+{
+	std::vector<float, aligned_allocator<float, 16>>		centerX;
+	std::vector<float, aligned_allocator<float, 16>>		centerY;
+	std::vector<float, aligned_allocator<float, 16>>		centerZ;
+	std::vector<float, aligned_allocator<float, 16>>		radiusSq;
+	std::vector<float, aligned_allocator<float, 16>>		invRadius;
+	std::vector<uint32_t, aligned_allocator<uint32_t, 16>>	id;
+};
+
 class SphereAccelerator : public IAccelerator
 {
 public:
@@ -23,28 +33,13 @@ public:
 	void AddSphere(const Math::Vector3& center, float radius, uint32_t id);
 
 	// Intersection methods
-	bool Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const final;
+	bool Intersect(Ray& ray, Hit& hit) const final;
 
-	void Commit() final;
-
-private:
-	// Top-level routines for intersecting rays against our set of spheres
-	bool IntersectSpheres1(const Ray& ray, float tMin, float tMax, Hit& hit) const;
-	bool IntersectSpheres4(const Ray& ray, float tMin, float tMax, Hit& hit) const;
-	bool IntersectSpheres8(const Ray& ray, float tMin, float tMax, Hit& hit) const;
-
-	// Bottom-level routines for intersecting rays against groups of spheres in SIMD
-	bool IntersectSphere1(size_t index, const Ray& ray, float tMin, float tMax, Hit& hit) const;
-	
+	void Commit() final;	
 
 private:
-	std::vector<float, aligned_allocator<float, 16>>		m_centerX;
-	std::vector<float, aligned_allocator<float, 16>>		m_centerY;
-	std::vector<float, aligned_allocator<float, 16>>		m_centerZ;
-	std::vector<float, aligned_allocator<float, 16>>		m_radiusSq;
-	std::vector<float, aligned_allocator<float, 16>>		m_invRadius;
-	std::vector<uint32_t, aligned_allocator<uint32_t, 16>>	m_id;
+	SphereList		m_sphereList;
 
-	size_t					m_simdSize{ 1 };
-	bool					m_dirty{ false };
+	size_t			m_simdSize{ 1 };
+	bool			m_dirty{ false };
 };

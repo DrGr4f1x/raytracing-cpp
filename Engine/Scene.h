@@ -9,18 +9,17 @@
 #pragma once
 
 #include "IAccelerator.h"
-#include "IPrimitive.h"
 
 
 // Forward declarations
 class SphereAccelerator;
 
 
-class Scene : public IPrimitive
+class Scene
 {
 public:
 	
-	bool Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const final;
+	bool Intersect(Ray& ray, Hit& hit) const ;
 	void Commit();
 	
 	// Spheres
@@ -30,6 +29,5 @@ private:
 	SphereAccelerator * GetSphereAccelerator();
 
 private:
-	std::vector<std::shared_ptr<IPrimitive>> m_primList;
 	std::vector<std::unique_ptr<IAccelerator>> m_accelList;
 };

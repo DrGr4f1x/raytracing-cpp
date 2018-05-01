@@ -13,7 +13,6 @@
 #include "MaterialSet.h"
 #include "Sampling.h"
 #include "Scene.h"
-#include "Sphere.h"
 #include "Timer.h"
 #include "Math\Random.h"
 
@@ -49,19 +48,25 @@ atomic_size_t s_totalRays = 0;
 MaterialSet materialSet;
 
 // Scene
+struct Sphere
+{
+	Vector3 center;
+	float radius;
+};
+
 struct EmbreeSphere
 {
-	shared_ptr<Sphere> sphere;
+	Sphere sphere;
 	RTCGeometry geom;
 	uint32_t geomId;
 };
 vector<EmbreeSphere> spheres;
 
 
-void AddSphere(shared_ptr<IPrimitive> sphere)
+void AddSphere(const Sphere& sphere)
 {
 	EmbreeSphere eSphere;
-	eSphere.sphere = dynamic_pointer_cast<Sphere>(sphere);
+	eSphere.sphere = sphere;
 	eSphere.geom = nullptr;
 	eSphere.geomId = RTC_INVALID_GEOMETRY_ID;
 	spheres.push_back(eSphere);
@@ -70,9 +75,8 @@ void AddSphere(shared_ptr<IPrimitive> sphere)
 
 void RandomScene()
 {
-	auto sphere = Sphere::Make(Vector3(0.0f, -1000.0f, 0.0f), 1000.0f);
 	materialSet.AddLambertian(Vector3(0.5f, 0.5f, 0.5f));
-	AddSphere(sphere);
+	AddSphere(Sphere{ Vector3(0.0f, -1000.0f, 0.0f), 1000.0f });
 
 	for (int a = -SPHERE_GRID_SIZE; a < SPHERE_GRID_SIZE; ++a)
 	{
@@ -83,7 +87,7 @@ void RandomScene()
 
 			if (Length(center - Vector3(4.0f, 0.2f, 0.0f)) > 0.9f)
 			{
-				sphere = Sphere::Make(center, radius);
+				auto sphere = Sphere{ center, radius };
 
 				float chooseMat = g_RNG.NextFloat();
 
@@ -105,32 +109,29 @@ void RandomScene()
 		}
 	}
 
-	sphere = Sphere::Make(Vector3(0.0f, 1.0f, 0.0f), 1.0f);
 	materialSet.AddDielectric(1.5f);
-	AddSphere(sphere);
+	AddSphere(Sphere{ Vector3(0.0f, 1.0f, 0.0f), 1.0f });
 
-	sphere = Sphere::Make(Vector3(-4.0f, 1.0f, 0.0f), 1.0f);
 	materialSet.AddLambertian(Vector3(0.4f, 0.2f, 0.1f));
-	AddSphere(sphere);
+	AddSphere(Sphere{ Vector3(-4.0f, 1.0f, 0.0f), 1.0f });
 
-	sphere = Sphere::Make(Vector3(4.0f, 1.0f, 0.0f), 1.0f);
 	materialSet.AddMetallic(Vector3(0.7f, 0.6f, 0.5f), 0.0f);
-	AddSphere(sphere);
+	AddSphere(Sphere{ Vector3(4.0f, 1.0f, 0.0f), 1.0f });
 }
 
 
 void SphereBoundsFunc(const RTCBoundsFunctionArguments* args)
 {
 	EmbreeSphere* embSphere = (EmbreeSphere*)args->geometryUserPtr;
-	Sphere* sphere = embSphere->sphere.get();
+	const Sphere& sphere = embSphere->sphere;
 
 	RTCBounds* bounds = args->bounds_o;
-	bounds->lower_x = sphere->GetCenterX() - sphere->GetRadius();
-	bounds->lower_y = sphere->GetCenterY() - sphere->GetRadius();
-	bounds->lower_z = sphere->GetCenterZ() - sphere->GetRadius();
-	bounds->upper_x = sphere->GetCenterX() + sphere->GetRadius();
-	bounds->upper_y = sphere->GetCenterY() + sphere->GetRadius();
-	bounds->upper_z = sphere->GetCenterZ() + sphere->GetRadius();
+	bounds->lower_x = sphere.center.GetX() - sphere.radius;
+	bounds->lower_y = sphere.center.GetY() - sphere.radius;
+	bounds->lower_z = sphere.center.GetZ() - sphere.radius;
+	bounds->upper_x = sphere.center.GetX() + sphere.radius;
+	bounds->upper_y = sphere.center.GetY() + sphere.radius;
+	bounds->upper_z = sphere.center.GetZ() + sphere.radius;
 }
 
 
@@ -145,7 +146,7 @@ void SphereIntersectFunc(const RTCIntersectFunctionNArguments* args)
 	unsigned int primID = args->primID;
 
 	EmbreeSphere* embSphere = (EmbreeSphere*)args->geometryUserPtr;
-	Sphere* sphere = embSphere->sphere.get();
+	const Sphere& sphere = embSphere->sphere;
 
 	assert(args->N == 1);
 
@@ -156,10 +157,10 @@ void SphereIntersectFunc(const RTCIntersectFunctionNArguments* args)
 	float& ray_tnear = RTCRayN_tnear(rays, N, 0);
 	float& ray_tfar = RTCRayN_tfar(rays, N, 0);
 
-	const Vector3 v = org - sphere->GetCenter();
+	const Vector3 v = org - sphere.center;
 	const float A = Dot(dir, dir);
 	const float B = 2.0f * Dot(v, dir);
-	const float C = Dot(v, v) - sphere->GetRadiusSq();
+	const float C = Dot(v, v) - sphere.radius * sphere.radius;
 	const float D = B * B - 4.0f * A * C;
 	if (D < 0.0f) return;
 	const float Q = sqrt(D);
@@ -176,7 +177,7 @@ void SphereIntersectFunc(const RTCIntersectFunctionNArguments* args)
 
 	if ((ray_tnear < t0) & (t0 < ray_tfar))
 	{
-		const Vector3 Ng = org + t0 * dir - sphere->GetCenter();
+		const Vector3 Ng = org + t0 * dir - sphere.center;
 		potentialHit.Ng_x = Ng.GetX();
 		potentialHit.Ng_y = Ng.GetY();
 		potentialHit.Ng_z = Ng.GetZ();
@@ -188,7 +189,7 @@ void SphereIntersectFunc(const RTCIntersectFunctionNArguments* args)
 
 	if ((ray_tnear < t1) & (t1 < ray_tfar))
 	{
-		const Vector3 Ng = org + t1 * dir - sphere->GetCenter();
+		const Vector3 Ng = org + t1 * dir - sphere.center;
 		potentialHit.Ng_x = Ng.GetX();
 		potentialHit.Ng_y = Ng.GetY();
 		potentialHit.Ng_z = Ng.GetZ();
@@ -225,11 +226,11 @@ void SphereIntersectFuncN(const RTCIntersectFunctionNArguments* args)
 		float& ray_tnear = RTCRayN_tnear(rays, N, ui);
 		float& ray_tfar = RTCRayN_tfar(rays, N, ui);
 
-		const Sphere* sphere = spheres[primID].sphere.get();
-		const Vector3 v = ray_org - sphere->GetCenter();
+		const Sphere& sphere = spheres[primID].sphere;
+		const Vector3 v = ray_org - sphere.center;
 		const float A = Dot(ray_dir, ray_dir);
 		const float B = 2.0f * Dot(v, ray_dir);
-		const float C = Dot(v, v) - sphere->GetRadiusSq();
+		const float C = Dot(v, v) - sphere.radius * sphere.radius;
 		const float D = B * B - 4.0f * A * C;
 		if (D < 0.0f) continue;
 		const float Q = sqrt(D);
@@ -248,7 +249,7 @@ void SphereIntersectFuncN(const RTCIntersectFunctionNArguments* args)
 
 		if ((ray_tnear < t0) & (t0 < ray_tfar))
 		{
-			const Vector3 Ng = ray_org + t0 * ray_dir - sphere->GetCenter();
+			const Vector3 Ng = ray_org + t0 * ray_dir - sphere.center;
 			potentialhit.Ng_x = Ng.GetX();
 			potentialhit.Ng_y = Ng.GetY();
 			potentialhit.Ng_z = Ng.GetZ();
@@ -260,7 +261,7 @@ void SphereIntersectFuncN(const RTCIntersectFunctionNArguments* args)
 
 		if ((ray_tnear < t1) & (t1 < ray_tfar))
 		{
-			const Vector3 Ng = ray_org + t1 * ray_dir - sphere->GetCenter();
+			const Vector3 Ng = ray_org + t1 * ray_dir - sphere.center;
 			potentialhit.Ng_x = Ng.GetX();
 			potentialhit.Ng_y = Ng.GetY();
 			potentialhit.Ng_z = Ng.GetZ();
@@ -343,7 +344,6 @@ Vector3 GetColor_Recursive(const Ray& ray, const RTCScene& scene, int depth, uin
 		Vector3 attenuation;
 
 		hit.pos = ray.Eval(rayHit.ray.tfar);
-		hit.t = rayHit.ray.tfar;
 		hit.normal = Normalize(Vector3(rayHit.hit.Ng_x, rayHit.hit.Ng_y, rayHit.hit.Ng_z));
 		
 		if (depth < MAX_RECURSION && materialSet.Scatter(rayHit.hit.geomID, ray, hit, attenuation, scattered, state))
@@ -356,7 +356,7 @@ Vector3 GetColor_Recursive(const Ray& ray, const RTCScene& scene, int depth, uin
 		}
 	}
 
-	Vector3 unitDir = Normalize(ray.Direction());
+	Vector3 unitDir = Normalize(ray.dir);
 	float t = 0.5f * (unitDir.GetY() + 1.0f);
 	return (1.0f - t) * Vector3(1.0f, 1.0f, 1.0f) + t * Vector3(0.5f, 0.7f, 1.0f);
 }
@@ -397,7 +397,6 @@ Vector3 GetColor_Iterative(Ray ray, const RTCScene& scene, uint32_t& state)
 			Vector3 attenuation;
 
 			hit.pos = ray.Eval(rayHit.ray.tfar);
-			hit.t = rayHit.ray.tfar;
 			hit.normal = Normalize(Vector3(rayHit.hit.Ng_x, rayHit.hit.Ng_y, rayHit.hit.Ng_z));
 
 			if (!materialSet.Scatter(rayHit.hit.geomID, ray, hit, attenuation, scattered, state))
@@ -412,7 +411,7 @@ Vector3 GetColor_Iterative(Ray ray, const RTCScene& scene, uint32_t& state)
 		}
 	} while (rayHit.hit.geomID != RTC_INVALID_GEOMETRY_ID && (depth++ < 50));
 
-	Vector3 unitDir = Normalize(ray.Direction());
+	Vector3 unitDir = Normalize(ray.dir);
 	float t = 0.5f * (unitDir.GetY() + 1.0f);
 	color *= (1.0f - t) * Vector3(1.0f, 1.0f, 1.0f) + t * Vector3(0.5f, 0.7f, 1.0f);
 

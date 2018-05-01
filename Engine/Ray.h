@@ -15,13 +15,12 @@ struct Ray
 {
 public:
 	Ray() = default;
-	Ray(const Math::Vector3& org, const Math::Vector3& dir)
+	Ray(const Math::Vector3& org, const Math::Vector3& dir, float tmin, float tmax)
 		: org(org)
 		, dir(dir)
+		, tmin(tmin)
+		, tmax(tmax)
 	{}
-
-	Math::Vector3 Origin() const { return org; }
-	Math::Vector3 Direction() const { return dir; }
 
 	Math::Vector3 Eval(float t) const
 	{
@@ -30,6 +29,8 @@ public:
 
 	Math::Vector3 org;
 	Math::Vector3 dir;
+	float tmin;
+	float tmax;
 };
 
 
@@ -37,6 +38,5 @@ struct Hit
 {
 	Math::Vector3 pos;
 	Math::Vector3 normal;
-	float t;
 	uint32_t geomId;
 };

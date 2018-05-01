@@ -91,7 +91,7 @@ bool MaterialSet::Scatter(size_t index, const Ray& ray, const Hit& hit, Math::Ve
 	case MaterialType::Lambertian:
 	{
 		Vector3 target = hit.pos + hit.normal + UniformUnitSphere3d(state);
-		scattered = Ray(hit.pos, Normalize(target - hit.pos));
+		scattered = Ray(hit.pos, Normalize(target - hit.pos), 0.001f, FLT_MAX);
 		attenuation = m_albedoList[index];
 		return true;
 	}
@@ -99,52 +99,52 @@ bool MaterialSet::Scatter(size_t index, const Ray& ray, const Hit& hit, Math::Ve
 
 	case MaterialType::Metallic:
 	{
-		Vector3 reflected = Reflect(Normalize(ray.Direction()), hit.normal);
-		scattered = Ray(hit.pos, Normalize(reflected + m_miscFloatList[index] * UniformUnitSphere3d(state)));
+		Vector3 reflected = Reflect(Normalize(ray.dir), hit.normal);
+		scattered = Ray(hit.pos, Normalize(reflected + m_miscFloatList[index] * UniformUnitSphere3d(state)), 0.001f, FLT_MAX);
 		attenuation = m_albedoList[index];
-		return (Dot(scattered.Direction(), hit.normal) > 0.0f);
+		return (Dot(scattered.dir, hit.normal) > 0.0f);
 	}
 	break;
 
 	case MaterialType::Dielectric:
 	{
 		Vector3 outNormal{ kZero };
-		Vector3 reflected = Reflect(ray.Direction(), hit.normal);
+		Vector3 reflected = Reflect(ray.dir, hit.normal);
 		float ni_over_nt = 0.0f;
 		attenuation = Vector3{ kOne };
 		Vector3 refracted{ kZero };
 		float reflectProb = 1.0f;
 		float cosine = 0.0f;
 		float refractionIndex = m_miscFloatList[index];
-		if (Dot(ray.Direction(), hit.normal) > 0.0f)
+		if (Dot(ray.dir, hit.normal) > 0.0f)
 		{
 			outNormal = -hit.normal;
 			ni_over_nt = refractionIndex;
-			cosine = refractionIndex * Dot(ray.Direction(), hit.normal) / Length(ray.Direction());
+			cosine = refractionIndex * Dot(ray.dir, hit.normal) / Length(ray.dir);
 		}
 		else
 		{
 			outNormal = hit.normal;
 			ni_over_nt = 1.0f / refractionIndex;
-			cosine = -Dot(ray.Direction(), hit.normal) / Length(ray.Direction());
+			cosine = -Dot(ray.dir, hit.normal) / Length(ray.dir);
 		}
 
-		if (Refract(ray.Direction(), outNormal, ni_over_nt, refracted))
+		if (Refract(ray.dir, outNormal, ni_over_nt, refracted))
 		{
 			reflectProb = Schlick(cosine, refractionIndex);
 		}
 		else
 		{
-			scattered = Ray(hit.pos, Normalize(reflected));
+			scattered = Ray(hit.pos, Normalize(reflected), 0.001f, FLT_MAX);
 		}
 
 		if (UniformFloat01(state) < reflectProb)
 		{
-			scattered = Ray(hit.pos, Normalize(reflected));
+			scattered = Ray(hit.pos, Normalize(reflected), 0.001f, FLT_MAX);
 		}
 		else
 		{
-			scattered = Ray(hit.pos, Normalize(refracted));
+			scattered = Ray(hit.pos, Normalize(refracted), 0.001f, FLT_MAX);
 		}
 
 		return true;

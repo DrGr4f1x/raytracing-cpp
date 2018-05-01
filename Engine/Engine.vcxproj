@@ -84,7 +84,6 @@
     <ClInclude Include="Enums.h" />
     <ClInclude Include="IAccelerator.h" />
     <ClInclude Include="Image.h" />
-    <ClInclude Include="IPrimitive.h" />
     <ClInclude Include="MaterialSet.h" />
     <ClInclude Include="Math\BoundingPlane.h" />
     <ClInclude Include="Math\BoundingSphere.h" />
@@ -111,7 +110,6 @@
     <ClInclude Include="Simd\Sse.h" />
     <ClInclude Include="Simd\UInt4.h" />
     <ClInclude Include="Simd\UInt8.h" />
-    <ClInclude Include="Sphere.h" />
     <ClInclude Include="SphereAccel.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -129,7 +127,6 @@
     <ClCompile Include="Sampling.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Simd\Sse.cpp" />
-    <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="SphereAccel.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

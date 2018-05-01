@@ -54,9 +54,6 @@
     <ClInclude Include="Image.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="IPrimitive.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="MaterialSet.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -67,9 +64,6 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Sphere.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Timer.h">
@@ -149,9 +143,6 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Sphere.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Timer.cpp">

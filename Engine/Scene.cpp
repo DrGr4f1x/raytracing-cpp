@@ -18,11 +18,11 @@ using namespace std;
 using namespace Math;
 
 
-bool Scene::Intersect(const Ray& ray, float tMin, float tMax, Hit& hit) const
+bool Scene::Intersect(Ray& ray, Hit& hit) const
 {
 	for (auto& p : m_accelList)
 	{
-		if (p->Intersect(ray, tMin, tMax, hit))
+		if (p->Intersect(ray, hit))
 		{
 			return true;
 		}
