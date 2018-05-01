@@ -53,17 +53,25 @@ struct Float4
 		_mm_storeu_ps((float*)ptr, a);
 	}
 
+
+	// Broadcast methods
+	static __forceinline Float4 Broadcast(float a)
+	{
+		return _mm_broadcastss_ps(_mm_set1_ps(a));
+	}
+
+
 	// Array access
 	__forceinline const float& operator[](size_t index) const
 	{
 		assert(index < 4);
-		return f[4];
+		return f[index];
 	}
 	
 	__forceinline float& operator[](size_t index)
 	{
 		assert(index < 4);
-		return f[4];
+		return f[index];
 	}
 
 
@@ -161,27 +169,15 @@ __forceinline Float4 Shuffle(const Float4& a, const Float4& b)
 }
 
 template <int i>
-__forceinline Float4 Shuffle(const Float4& a)
+__forceinline Float4 Shuffle4(const Float4& a)
 {
 	return Shuffle<i, i, i, i>(a);
-}
-
-template <int i0, int i1, int i2, int i3>
-__forceinline Float4 Shuffle(float a)
-{
-	return Shuffle<i0, i1, i2, i3>(Float4(a));
 }
 
 template <int i0, int i1, int i2, int i3>
 __forceinline Float4 Shuffle(float a, float b)
 {
 	return Shuffle<i0, i1, i2, i3>(Float4(a), Float4(b));
-}
-
-template <int i>
-__forceinline Float4 Shuffle(float a)
-{
-	return Shuffle<i, i, i, i>(Float4(a));
 }
 
 

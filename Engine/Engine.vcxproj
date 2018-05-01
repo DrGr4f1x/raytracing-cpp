@@ -101,11 +101,15 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Simd\Avx.h" />
     <ClInclude Include="Simd\Bool4.h" />
+    <ClInclude Include="Simd\Bool8.h" />
     <ClInclude Include="Simd\Float4.h" />
+    <ClInclude Include="Simd\Float8.h" />
     <ClInclude Include="Simd\Int4.h" />
+    <ClInclude Include="Simd\Int8.h" />
     <ClInclude Include="Simd\Simd.h" />
     <ClInclude Include="Simd\Sse.h" />
     <ClInclude Include="Simd\UInt4.h" />
+    <ClInclude Include="Simd\UInt8.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="SphereAccel.h" />
     <ClInclude Include="stdafx.h" />

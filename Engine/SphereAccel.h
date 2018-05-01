@@ -31,10 +31,11 @@ private:
 	// Top-level routines for intersecting rays against our set of spheres
 	bool IntersectSpheres1(const Ray& ray, float tMin, float tMax, Hit& hit) const;
 	bool IntersectSpheres4(const Ray& ray, float tMin, float tMax, Hit& hit) const;
+	bool IntersectSpheres8(const Ray& ray, float tMin, float tMax, Hit& hit) const;
 
 	// Bottom-level routines for intersecting rays against groups of spheres in SIMD
 	bool IntersectSphere1(size_t index, const Ray& ray, float tMin, float tMax, Hit& hit) const;
-	//bool IntersectSphere4(size_t index, const Ray& ray, float tMin, float tMax, Hit& hit) const;
+	
 
 private:
 	std::vector<float>		m_centerX;

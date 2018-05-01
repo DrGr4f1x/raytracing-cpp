@@ -150,24 +150,6 @@ __forceinline UInt4 Shuffle(const UInt4& a)
 	return Shuffle<i, i, i, i>(a);
 }
 
-template <int i0, int i1, int i2, int i3>
-__forceinline UInt4 Shuffle(uint32_t a)
-{
-	return Shuffle<i0, i1, i2, i3>(UInt4(a));
-}
-
-template <int i0, int i1, int i2, int i3>
-__forceinline UInt4 Shuffle(uint32_t a, uint32_t b)
-{
-	return Shuffle<i0, i1, i2, i3>(UInt4(a), UInt4(b));
-}
-
-template <int i>
-__forceinline UInt4 Shuffle(uint32_t a)
-{
-	return Shuffle<i, i, i, i>(UInt4(a));
-}
-
 
 // Misc math methods
 __forceinline UInt4 Select(const Bool4& m, const UInt4& t, const UInt4& f)

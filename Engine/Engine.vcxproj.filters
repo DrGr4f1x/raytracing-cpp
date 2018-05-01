@@ -111,6 +111,18 @@
     <ClInclude Include="Simd\UInt4.h">
       <Filter>Simd\SSE4</Filter>
     </ClInclude>
+    <ClInclude Include="Simd\Bool8.h">
+      <Filter>Simd\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="Simd\Int8.h">
+      <Filter>Simd\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="Simd\UInt8.h">
+      <Filter>Simd\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="Simd\Float8.h">
+      <Filter>Simd\AVX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Math\Functions.inl">

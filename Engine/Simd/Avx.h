@@ -9,3 +9,10 @@
 #pragma once
 
 #include "Sse.h"
+
+#if USE_AVX
+#include "Bool8.h"
+#include "Int8.h"
+#include "UInt8.h"
+#include "Float8.h"
+#endif

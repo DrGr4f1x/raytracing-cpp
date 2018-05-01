@@ -17,9 +17,11 @@ using namespace std;
 
 SphereAccelerator::SphereAccelerator()
 {
-#if USE_SSE4
-	// TODO: Check cpuid to make sure we can do SSE 4.2
-	m_simdSize = 1;
+	// TODO: Check cpuid to make sure we support the selected SIMD ISA
+#if USE_AVX || USE_AVX2
+	m_simdSize = 8;
+#elif USE_SSE4
+	m_simdSize = 4;
 #endif
 }
 
@@ -51,8 +53,7 @@ bool SphereAccelerator::Intersect(const Ray& ray, float tMin, float tMax, Hit& h
 	}
 	else if (m_simdSize == 8)
 	{
-		assert(false);
-		return false;
+		return IntersectSpheres8(ray, tMin, tMax, hit);
 	}
 	else
 	{
@@ -110,12 +111,12 @@ bool SphereAccelerator::IntersectSpheres1(const Ray& ray, float tMin, float tMax
 
 bool SphereAccelerator::IntersectSpheres4(const Ray& ray, float tMin, float tMax, Hit& hit) const
 {
-	Float4 f4RayOrigX = Shuffle<0>(float(ray.org.GetX()));
-	Float4 f4RayOrigY = Shuffle<1>(float(ray.org.GetY()));
-	Float4 f4RayOrigZ = Shuffle<2>(float(ray.org.GetZ()));
-	Float4 f4RayDirX = Shuffle<0>(float(ray.dir.GetX()));
-	Float4 f4RayDirY = Shuffle<1>(float(ray.dir.GetY()));
-	Float4 f4RayDirZ = Shuffle<2>(float(ray.dir.GetZ()));
+	Float4 f4RayOrigX = Float4::Broadcast(ray.org.GetX());
+	Float4 f4RayOrigY = Float4::Broadcast(ray.org.GetY());
+	Float4 f4RayOrigZ = Float4::Broadcast(ray.org.GetZ());
+	Float4 f4RayDirX = Float4::Broadcast(ray.dir.GetX());
+	Float4 f4RayDirY = Float4::Broadcast(ray.dir.GetY());
+	Float4 f4RayDirZ = Float4::Broadcast(ray.dir.GetZ());
 
 	Float4 f4TMin(tMin);
 	Float4 f4HitT(tMax);
@@ -123,7 +124,7 @@ bool SphereAccelerator::IntersectSpheres4(const Ray& ray, float tMin, float tMax
 	UInt4 u4Id(0xffffffff);
 
 	const size_t numSpheres = m_centerX.size();
-	for (size_t i = 0; i < numSpheres; i += 4)
+	for (size_t i = 0; i < numSpheres; i += m_simdSize)
 	{
 		// Load data for 4 spheres
 		Float4 f4CenterX = Float4::LoadU(m_centerX.data() + i);
@@ -137,7 +138,6 @@ bool SphereAccelerator::IntersectSpheres4(const Ray& ray, float tMin, float tMax
 		Float4 ocY = f4RayOrigY - f4CenterY;
 		Float4 ocZ = f4RayOrigZ - f4CenterZ;
 
-		//Float4 a = (f4RayDirX * f4RayDirX) + (f4RayDirY * f4RayDirY) + (f4RayDirZ * f4RayDirZ);
 		Float4 b = (ocX * f4RayDirX) + (ocY * f4RayDirY) + (ocZ * f4RayDirZ);
 		Float4 c = (ocX * ocX) + (ocY * ocY) + (ocZ * ocZ) - f4RadiusSq;
 
@@ -172,7 +172,90 @@ bool SphereAccelerator::IntersectSpheres4(const Ray& ray, float tMin, float tMax
 
 			hit.t = hits[0];
 			hit.geomId = ids[0];
-			for (int i = 1; i < 4; ++i)
+			for (int i = 1; i < m_simdSize; ++i)
+			{
+				if (hits[i] < hit.t)
+				{
+					hit.t = hits[i];
+					hit.geomId = ids[i];
+				}
+			}
+
+			hit.pos = ray.Eval(hit.t);
+			hit.normal = (hit.pos - Vector3(m_centerX[hit.geomId], m_centerY[hit.geomId], m_centerZ[hit.geomId])) * m_invRadius[hit.geomId];
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+bool SphereAccelerator::IntersectSpheres8(const Ray& ray, float tMin, float tMax, Hit& hit) const
+{
+	Float8 f8RayOrigX = Float8::Broadcast(ray.org.GetX());
+	Float8 f8RayOrigY = Float8::Broadcast(ray.org.GetY());
+	Float8 f8RayOrigZ = Float8::Broadcast(ray.org.GetZ());
+	Float8 f8RayDirX = Float8::Broadcast(ray.dir.GetX());
+	Float8 f8RayDirY = Float8::Broadcast(ray.dir.GetY());
+	Float8 f8RayDirZ = Float8::Broadcast(ray.dir.GetZ());
+
+	Float8 f8TMin(tMin);
+	Float8 f8HitT(tMax);
+
+	UInt8 u8Id(0xffffffff);
+
+	const size_t numSpheres = m_centerX.size();
+	for (size_t i = 0; i < numSpheres; i += m_simdSize)
+	{
+		// Load data for 8 spheres
+		Float8 f8CenterX = Float8::LoadU(m_centerX.data() + i);
+		Float8 f8CenterY = Float8::LoadU(m_centerY.data() + i);
+		Float8 f8CenterZ = Float8::LoadU(m_centerZ.data() + i);
+		Float8 f8RadiusSq = Float8::LoadU(m_radiusSq.data() + i);
+
+		UInt8 u8CurId = UInt8::LoadU(m_id.data() + i);
+
+		Float8 ocX = f8RayOrigX - f8CenterX;
+		Float8 ocY = f8RayOrigY - f8CenterY;
+		Float8 ocZ = f8RayOrigZ - f8CenterZ;
+
+		Float8 b = (ocX * f8RayDirX) + (ocY * f8RayDirY) + (ocZ * f8RayDirZ);
+		Float8 c = (ocX * ocX) + (ocY * ocY) + (ocZ * ocZ) - f8RadiusSq;
+
+		Float8 discriminant = (b * b) - c;
+		Bool8 discrPos = discriminant > Float8(0.0f);
+
+		if (Any(discrPos))
+		{
+			Float8 discrSqrt = Sqrt(discriminant);
+
+			Float8 t0 = (-b - discrSqrt);
+			Float8 t1 = (-b + discrSqrt);
+
+			Float8 t = Select(t0 > f8TMin, t0, t1);
+			Bool8 mask = discrPos & (t > f8TMin) & (t < f8HitT);
+
+			u8Id = Select(mask, u8CurId, u8Id);
+			f8HitT = Select(mask, t, f8HitT);
+		}
+	}
+
+	float minT = ReduceMin(f8HitT);
+	if (minT < tMax)
+	{
+		uint32_t minMask = Mask(f8HitT == Float8(minT));
+		if (minMask != 0x0)
+		{
+			uint32_t ids[8];
+			float hits[8];
+			UInt8::StoreU(ids, u8Id);
+			Float8::StoreU(hits, f8HitT);
+
+			hit.t = hits[0];
+			hit.geomId = ids[0];
+			for (int i = 1; i < m_simdSize; ++i)
 			{
 				if (hits[i] < hit.t)
 				{

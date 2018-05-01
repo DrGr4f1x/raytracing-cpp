@@ -185,21 +185,3 @@ __forceinline Int4 Shuffle(const Int4& a)
 {
 	return Shuffle<i, i, i, i>(a);
 }
-
-template <int i0, int i1, int i2, int i3>
-__forceinline Int4 Shuffle(int a)
-{
-	return Shuffle<i0, i1, i2, i3>(Int4(a));
-}
-
-template <int i0, int i1, int i2, int i3>
-__forceinline Int4 Shuffle(int a, int b)
-{
-	return Shuffle<i0, i1, i2, i3>(Int4(a), Int4(b));
-}
-
-template <int i>
-__forceinline Int4 Shuffle(int a)
-{
-	return Shuffle<i, i, i, i>(Int4(a));
-}
