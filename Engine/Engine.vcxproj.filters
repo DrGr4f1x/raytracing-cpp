@@ -123,6 +123,9 @@
     <ClInclude Include="Simd\Float8.h">
       <Filter>Simd\AVX</Filter>
     </ClInclude>
+    <ClInclude Include="Alloc.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Math\Functions.inl">

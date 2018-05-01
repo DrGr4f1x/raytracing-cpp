@@ -79,6 +79,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Alloc.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="IAccelerator.h" />

@@ -38,12 +38,12 @@ private:
 	
 
 private:
-	std::vector<float>		m_centerX;
-	std::vector<float>		m_centerY;
-	std::vector<float>		m_centerZ;
-	std::vector<float>		m_radiusSq;
-	std::vector<float>		m_invRadius;
-	std::vector<uint32_t>	m_id;
+	std::vector<float, aligned_allocator<float, 16>>		m_centerX;
+	std::vector<float, aligned_allocator<float, 16>>		m_centerY;
+	std::vector<float, aligned_allocator<float, 16>>		m_centerZ;
+	std::vector<float, aligned_allocator<float, 16>>		m_radiusSq;
+	std::vector<float, aligned_allocator<float, 16>>		m_invRadius;
+	std::vector<uint32_t, aligned_allocator<uint32_t, 16>>	m_id;
 
 	size_t					m_simdSize{ 1 };
 	bool					m_dirty{ false };

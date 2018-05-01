@@ -127,12 +127,12 @@ bool SphereAccelerator::IntersectSpheres4(const Ray& ray, float tMin, float tMax
 	for (size_t i = 0; i < numSpheres; i += m_simdSize)
 	{
 		// Load data for 4 spheres
-		Float4 f4CenterX = Float4::LoadU(m_centerX.data() + i);
-		Float4 f4CenterY = Float4::LoadU(m_centerY.data() + i);
-		Float4 f4CenterZ = Float4::LoadU(m_centerZ.data() + i);
-		Float4 f4RadiusSq = Float4::LoadU(m_radiusSq.data() + i);
+		Float4 f4CenterX = Float4::Load(m_centerX.data() + i);
+		Float4 f4CenterY = Float4::Load(m_centerY.data() + i);
+		Float4 f4CenterZ = Float4::Load(m_centerZ.data() + i);
+		Float4 f4RadiusSq = Float4::Load(m_radiusSq.data() + i);
 
-		UInt4 u4CurId = UInt4::LoadU(m_id.data() + i);
+		UInt4 u4CurId = UInt4::Load(m_id.data() + i);
 
 		Float4 ocX = f4RayOrigX - f4CenterX;
 		Float4 ocY = f4RayOrigY - f4CenterY;
@@ -210,12 +210,12 @@ bool SphereAccelerator::IntersectSpheres8(const Ray& ray, float tMin, float tMax
 	for (size_t i = 0; i < numSpheres; i += m_simdSize)
 	{
 		// Load data for 8 spheres
-		Float8 f8CenterX = Float8::LoadU(m_centerX.data() + i);
-		Float8 f8CenterY = Float8::LoadU(m_centerY.data() + i);
-		Float8 f8CenterZ = Float8::LoadU(m_centerZ.data() + i);
-		Float8 f8RadiusSq = Float8::LoadU(m_radiusSq.data() + i);
+		Float8 f8CenterX = Float8::Load(m_centerX.data() + i);
+		Float8 f8CenterY = Float8::Load(m_centerY.data() + i);
+		Float8 f8CenterZ = Float8::Load(m_centerZ.data() + i);
+		Float8 f8RadiusSq = Float8::Load(m_radiusSq.data() + i);
 
-		UInt8 u8CurId = UInt8::LoadU(m_id.data() + i);
+		UInt8 u8CurId = UInt8::Load(m_id.data() + i);
 
 		Float8 ocX = f8RayOrigX - f8CenterX;
 		Float8 ocY = f8RayOrigY - f8CenterY;
