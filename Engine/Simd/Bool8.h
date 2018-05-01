@@ -8,23 +8,28 @@
 
 #pragma once
 
-struct Bool8
+template <>
+struct Bool<8>
 {
 	// Constructors
-	__forceinline Bool8() = default;
-	__forceinline Bool8(const Bool8& other) : v(other.v) {}
-	__forceinline Bool8(__m256 input) : v(input) {}
+	__forceinline Bool() = default;
+	__forceinline Bool(const Bool& other) : v(other.v) {}
+	__forceinline Bool(__m256 input) : v(input) {}
 
-	__forceinline Bool8(const Bool4& a) : v(_mm256_insertf128_ps(_mm256_castps128_ps256(a), a, 1)) {}
-	__forceinline Bool8(const Bool4& a, const Bool4& b) : v(_mm256_insertf128_ps(_mm256_castps128_ps256(a), b, 1)) {}
-	__forceinline Bool8(__m128 a, __m128 b) : low(a), high(b) {}
+	__forceinline Bool(const Bool4& a) : v(_mm256_insertf128_ps(_mm256_castps128_ps256(a), a, 1)) {}
+	__forceinline Bool(const Bool4& a, const Bool4& b) : v(_mm256_insertf128_ps(_mm256_castps128_ps256(a), b, 1)) {}
+	__forceinline Bool(__m128 a, __m128 b) : low(a), high(b) {}
 
-	__forceinline Bool8(bool a) : v(Bool8(Bool4(a), Bool4(a))) {}
-	__forceinline Bool8(bool a, bool b) : v(Bool8(Bool4(a), Bool4(b))) {}
-	__forceinline Bool8(bool a, bool b, bool c, bool d) : v(Bool8(Bool4(a, b), Bool4(c, d))) {}
-	__forceinline Bool8(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h) : v(Bool8(Bool4(a, b, c, d), Bool4(e, f, g, h))) {}
+	__forceinline Bool(bool a) : v(Bool(Bool4(a), Bool4(a))) {}
+	__forceinline Bool(bool a, bool b) : v(Bool(Bool4(a), Bool4(b))) {}
+	__forceinline Bool(bool a, bool b, bool c, bool d) 
+		: v(Bool(Bool4(a, b), Bool4(c, d))) 
+	{}
+	__forceinline Bool(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h) 
+		: v(Bool(Bool4(a, b, c, d), Bool4(e, f, g, h))) 
+	{}
 
-	__forceinline Bool8(int mask)
+	__forceinline Bool(int mask)
 	{
 		assert(mask >= 0 && mask < 256);
 		low = g_mmLookupMaskPs[mask & 0xf];
@@ -32,7 +37,7 @@ struct Bool8
 	}
 
 	// Assignment operator
-	__forceinline Bool8& operator=(const Bool8& other)
+	__forceinline Bool& operator=(const Bool& other)
 	{
 		v = other.v;
 		return *this;

@@ -10,21 +10,26 @@
 
 #if USE_AVX2
 
-struct Int8
+template <>
+struct Int<8>
 {
 	// Constructors
-	__forceinline Int8() = default;
-	__forceinline Int8(const Int8& other) : v(other.v) {}
-	__forceinline Int8(__m256i v) : v(v) {}
-	__forceinline explicit Int8(__m256 v) : v(_mm256_cvtps_epi32(v)) {}
-	__forceinline Int8(int a) : v(_mm256_set1_epi32(a)) {}
-	__forceinline Int8(int a, int b) : v(_mm256_set_epi32(b, a, b, a, b, a, b, a)) {}
-	__forceinline Int8(int a, int b, int c, int d) : v(_mm256_set_epi32(d, c, b, a, d, c, b, a)) {}
-	__forceinline Int8(int a, int b, int c, int d, int e, int f, int g, int h) : v(_mm256_set_epi32(h, g, f, e, d, c, b, a)) {}
+	__forceinline Int() = default;
+	__forceinline Int(const Int& other) : v(other.v) {}
+	__forceinline Int(__m256i v) : v(v) {}
+	__forceinline explicit Int(__m256 v) : v(_mm256_cvtps_epi32(v)) {}
+	__forceinline Int(int a) : v(_mm256_set1_epi32(a)) {}
+	__forceinline Int(int a, int b) : v(_mm256_set_epi32(b, a, b, a, b, a, b, a)) {}
+	__forceinline Int(int a, int b, int c, int d) 
+		: v(_mm256_set_epi32(d, c, b, a, d, c, b, a)) 
+	{}
+	__forceinline Int(int a, int b, int c, int d, int e, int f, int g, int h) 
+		: v(_mm256_set_epi32(h, g, f, e, d, c, b, a)) 
+	{}
 
 
 	// Assignment operator
-	__forceinline Int8& operator=(const Int8& other)
+	__forceinline Int& operator=(const Int& other)
 	{
 		v = other.v;
 		return *this;
@@ -37,22 +42,22 @@ struct Int8
 
 
 	// Load/store methods
-	static __forceinline Int8 Load(const void* ptr)
+	static __forceinline Int Load(const void* ptr)
 	{
 		return _mm256_load_si256((__m256i*)ptr);
 	}
 
-	static __forceinline Int8 LoadU(const void* ptr)
+	static __forceinline Int LoadU(const void* ptr)
 	{
 		return _mm256_loadu_si256((__m256i*)ptr);
 	}
 
-	static __forceinline void Store(void* ptr, const Int8& a)
+	static __forceinline void Store(void* ptr, const Int& a)
 	{
 		_mm256_store_si256((__m256i*)ptr, a);
 	}
 
-	static __forceinline void StoreU(void* ptr, const Int8& a)
+	static __forceinline void StoreU(void* ptr, const Int& a)
 	{
 		_mm256_storeu_si256((__m256i*)ptr, a);
 	}
@@ -191,18 +196,23 @@ __forceinline Int8 Shuffle(const Int8& a)
 
 #else
 
-struct Int8
+template <>
+struct Int<8>
 {
 	// Constructors
-	__forceinline Int8() = default;
-	__forceinline Int8(const Int8& other) : v(other.v) {}
-	__forceinline Int8(__m256i v) : v(v) {}
-	__forceinline Int8(const __m128i& a, const __m128i& b) : low(a), high(b) {}
-	__forceinline explicit Int8(__m256 v) : v(_mm256_cvtps_epi32(v)) {}
-	__forceinline Int8(int a) : v(_mm256_set1_epi32(a)) {}
-	__forceinline Int8(int a, int b) : v(_mm256_set_epi32(b, a, b, a, b, a, b, a)) {}
-	__forceinline Int8(int a, int b, int c, int d) : v(_mm256_set_epi32(d, c, b, a, d, c, b, a)) {}
-	__forceinline Int8(int a, int b, int c, int d, int e, int f, int g, int h) : v(_mm256_set_epi32(h, g, f, e, d, c, b, a)) {}
+	__forceinline Int() = default;
+	__forceinline Int(const Int& other) : v(other.v) {}
+	__forceinline Int(__m256i v) : v(v) {}
+	__forceinline Int(const __m128i& a, const __m128i& b) : low(a), high(b) {}
+	__forceinline explicit Int(__m256 v) : v(_mm256_cvtps_epi32(v)) {}
+	__forceinline Int(int a) : v(_mm256_set1_epi32(a)) {}
+	__forceinline Int(int a, int b) : v(_mm256_set_epi32(b, a, b, a, b, a, b, a)) {}
+	__forceinline Int(int a, int b, int c, int d) 
+		: v(_mm256_set_epi32(d, c, b, a, d, c, b, a)) 
+	{}
+	__forceinline Int(int a, int b, int c, int d, int e, int f, int g, int h) 
+		: v(_mm256_set_epi32(h, g, f, e, d, c, b, a)) 
+	{}
 
 
 	// Assignment operator
@@ -219,22 +229,22 @@ struct Int8
 
 
 	// Load/store methods
-	static __forceinline Int8 Load(const void* ptr)
+	static __forceinline Int Load(const void* ptr)
 	{
 		return _mm256_castps_si256(_mm256_load_ps((float*)ptr));
 	}
 
-	static __forceinline Int8 LoadU(const void* ptr)
+	static __forceinline Int LoadU(const void* ptr)
 	{
 		return  _mm256_castps_si256(_mm256_loadu_ps((float*)ptr));
 	}
 
-	static __forceinline void Store(void* ptr, const Int8& a)
+	static __forceinline void Store(void* ptr, const Int& a)
 	{
 		_mm256_store_ps((float*)ptr, _mm256_castsi256_ps(a));
 	}
 
-	static __forceinline void StoreU(void* ptr, const Int8& a)
+	static __forceinline void StoreU(void* ptr, const Int& a)
 	{
 		_mm256_storeu_ps((float*)ptr, _mm256_castsi256_ps(a));
 	}

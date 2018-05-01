@@ -8,20 +8,21 @@
 
 #pragma once
 
-struct Int4
+template <>
+struct Int<4>
 {
 	// Constructors
-	__forceinline Int4() = default;
-	__forceinline Int4(const Int4& other) : v(other.v) {}
-	__forceinline Int4(__m128i v) : v(v) {}
-	__forceinline explicit Int4(__m128 v) : v(_mm_cvtps_epi32(v)) {}
-	__forceinline Int4(int a) : v(_mm_set1_epi32(a)) {}
-	__forceinline Int4(int a, int b, int c, int d) : v(_mm_set_epi32(d, c, b, a)) {}
-	__forceinline Int4(const Bool4& a) : v(_mm_castps_si128((__m128)a)) {}
+	__forceinline Int() = default;
+	__forceinline Int(const Int& other) : v(other.v) {}
+	__forceinline Int(__m128i v) : v(v) {}
+	__forceinline explicit Int(__m128 v) : v(_mm_cvtps_epi32(v)) {}
+	__forceinline Int(int a) : v(_mm_set1_epi32(a)) {}
+	__forceinline Int(int a, int b, int c, int d) : v(_mm_set_epi32(d, c, b, a)) {}
+	__forceinline Int(const Bool4& a) : v(_mm_castps_si128((__m128)a)) {}
 
 
 	// Assignment operator
-	__forceinline Int4& operator=(const Int4& other)
+	__forceinline Int& operator=(const Int4& other)
 	{
 		v = other.v;
 		return *this;
@@ -34,22 +35,22 @@ struct Int4
 
 
 	// Load/store methods
-	static __forceinline Int4 Load(const void* ptr)
+	static __forceinline Int Load(const void* ptr)
 	{
 		return _mm_load_si128((__m128i*)ptr);
 	}
 
-	static __forceinline Int4 LoadU(const void* ptr)
+	static __forceinline Int LoadU(const void* ptr)
 	{
 		return _mm_loadu_si128((__m128i*)ptr);
 	}
 
-	static __forceinline void Store(void* ptr, const Int4& a)
+	static __forceinline void Store(void* ptr, const Int& a)
 	{
 		_mm_store_si128((__m128i*)ptr, a);
 	}
 
-	static __forceinline void StoreU(void* ptr, const Int4& a)
+	static __forceinline void StoreU(void* ptr, const Int& a)
 	{
 		_mm_storeu_si128((__m128i*)ptr, a);
 	}

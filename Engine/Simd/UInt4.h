@@ -8,19 +8,20 @@
 
 #pragma once
 
-struct UInt4
+template <>
+struct UInt<4>
 {
 	// Constructors
-	__forceinline UInt4() = default;
-	__forceinline UInt4(const UInt4& other) : v(other.v) {}
-	__forceinline UInt4(__m128i v) : v(v) {}
-	__forceinline UInt4(uint32_t a) : v(_mm_set1_epi32(a)) {}
-	__forceinline UInt4(uint32_t a, uint32_t b, uint32_t c, uint32_t d) : v(_mm_set_epi32(d, c, b, a)) {}
-	__forceinline explicit UInt4(const Bool4& a) : v(_mm_castps_si128(a)) {}
+	__forceinline UInt() = default;
+	__forceinline UInt(const UInt& other) : v(other.v) {}
+	__forceinline UInt(__m128i v) : v(v) {}
+	__forceinline UInt(uint32_t a) : v(_mm_set1_epi32(a)) {}
+	__forceinline UInt(uint32_t a, uint32_t b, uint32_t c, uint32_t d) : v(_mm_set_epi32(d, c, b, a)) {}
+	__forceinline explicit UInt(const Bool4& a) : v(_mm_castps_si128(a)) {}
 
 
 	// Assignment operator
-	UInt4& operator=(const UInt4& other)
+	UInt& operator=(const UInt& other)
 	{
 		v = other.v;
 		return *this;
@@ -33,22 +34,22 @@ struct UInt4
 
 
 	// Load/store methods
-	static __forceinline UInt4 Load(const void* ptr)
+	static __forceinline UInt Load(const void* ptr)
 	{
 		return _mm_load_si128((__m128i*)ptr);
 	}
 
-	static __forceinline UInt4 LoadU(const void* ptr)
+	static __forceinline UInt LoadU(const void* ptr)
 	{
 		return _mm_loadu_si128((__m128i*)ptr);
 	}
 
-	static __forceinline void Store(void* ptr, const UInt4& a)
+	static __forceinline void Store(void* ptr, const UInt& a)
 	{
 		_mm_store_si128((__m128i*)ptr, a);
 	}
 
-	static __forceinline void StoreU(void* ptr, const UInt4& a)
+	static __forceinline void StoreU(void* ptr, const UInt& a)
 	{
 		_mm_storeu_si128((__m128i*)ptr, a);
 	}

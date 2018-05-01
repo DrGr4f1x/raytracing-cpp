@@ -8,32 +8,33 @@
 
 #pragma once
 
-struct Bool4
+template <>
+struct Bool<4>
 {
 	// Constructors
-	__forceinline Bool4() = default;
-	__forceinline Bool4(const Bool4& other)	: v(other.v) {}
-	__forceinline Bool4(__m128 input) : v(input) {}
+	__forceinline Bool() = default;
+	__forceinline Bool(const Bool& other)	: v(other.v) {}
+	__forceinline Bool(__m128 input) : v(input) {}
 
-	__forceinline Bool4(bool a)
+	__forceinline Bool(bool a)
 		: v(g_mmLookupMaskPs[(int(a) << 3) | (int(a) << 2) | (int(a) << 1) | int(a)])
 	{}
 
-	__forceinline Bool4(bool a, bool b)
+	__forceinline Bool(bool a, bool b)
 		: v(g_mmLookupMaskPs[(int(b) << 3) | (int(a) << 2) | (int(b) << 1) | int(a)])
 	{}
 
-	__forceinline Bool4(bool a, bool b, bool c, bool d)
+	__forceinline Bool(bool a, bool b, bool c, bool d)
 		: v(g_mmLookupMaskPs[(int(d) << 3) | (int(c) << 2) | (int(b) << 1) | int(a)])
 	{}
 
-	__forceinline Bool4(int mask)
+	__forceinline Bool(int mask)
 	{
 		assert(mask >= 0 && mask < 16);
 		v = g_mmLookupMaskPs[mask];
 	}
 
-	__forceinline Bool4(uint32_t mask)
+	__forceinline Bool(uint32_t mask)
 	{
 		assert(mask < 16);
 		v = g_mmLookupMaskPs[mask];
@@ -41,7 +42,7 @@ struct Bool4
 
 
 	// Assignment operator
-	__forceinline Bool4& operator=(const Bool4& other)
+	__forceinline Bool& operator=(const Bool& other)
 	{
 		v = other.v;
 		return *this;

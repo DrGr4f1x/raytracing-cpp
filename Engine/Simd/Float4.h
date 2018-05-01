@@ -8,19 +8,20 @@
 
 #pragma once
 
-struct Float4
+template <>
+struct Float<4>
 {
 	// Constructors
-	__forceinline Float4() = default;
-	__forceinline Float4(const Float4& other) : v(other.v) {}
-	__forceinline Float4(__m128 v) : v(v) {}
-	__forceinline Float4(float a) : v(_mm_set1_ps(a)) {}
-	__forceinline Float4(float a, float b, float c, float d) : v(_mm_set_ps(d, c, b, a)) {}
-	__forceinline explicit Float4(const Int4& a) : v(_mm_cvtepi32_ps(a)) {}
+	__forceinline Float() = default;
+	__forceinline Float(const Float& other) : v(other.v) {}
+	__forceinline Float(__m128 v) : v(v) {}
+	__forceinline Float(float a) : v(_mm_set1_ps(a)) {}
+	__forceinline Float(float a, float b, float c, float d) : v(_mm_set_ps(d, c, b, a)) {}
+	__forceinline explicit Float(const Int4& a) : v(_mm_cvtepi32_ps(a)) {}
 
 
 	// Assignment operator
-	__forceinline Float4& operator=(const Float4& other)
+	__forceinline Float& operator=(const Float4& other)
 	{
 		v = other.v;
 		return *this;
@@ -33,29 +34,29 @@ struct Float4
 
 
 	// Load/store methods
-	static __forceinline Float4 Load(const void* ptr)
+	static __forceinline Float Load(const void* ptr)
 	{
 		return _mm_load_ps((float*)ptr);
 	}
 
-	static __forceinline Float4 LoadU(const void* ptr)
+	static __forceinline Float LoadU(const void* ptr)
 	{
 		return _mm_loadu_ps((float*)ptr);
 	}
 
-	static __forceinline void Store(void* ptr, const Float4& a)
+	static __forceinline void Store(void* ptr, const Float& a)
 	{
 		_mm_store_ps((float*)ptr, a);
 	}
 
-	static __forceinline void StoreU(void* ptr, const Float4& a)
+	static __forceinline void StoreU(void* ptr, const Float& a)
 	{
 		_mm_storeu_ps((float*)ptr, a);
 	}
 
 
 	// Broadcast methods
-	static __forceinline Float4 Broadcast(float a)
+	static __forceinline Float Broadcast(float a)
 	{
 		return _mm_broadcastss_ps(_mm_set1_ps(a));
 	}

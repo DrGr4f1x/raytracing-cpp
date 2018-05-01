@@ -8,25 +8,26 @@
 
 #pragma once
 
-struct Float8
+template <>
+struct Float<8>
 {
 	// Constructors
-	__forceinline Float8() = default;
-	__forceinline Float8(const Float8& other) : v(other.v) {}
-	__forceinline Float8(__m256 v) : v(v) {}
-	__forceinline Float8(float a) : v(_mm256_set1_ps(a)) {}
-	__forceinline Float8(float a, float b) : v(_mm256_set_ps(b, a, b, a, b, a, b, a)) {}
-	__forceinline Float8(float a, float b, float c, float d) 
+	__forceinline Float() = default;
+	__forceinline Float(const Float& other) : v(other.v) {}
+	__forceinline Float(__m256 v) : v(v) {}
+	__forceinline Float(float a) : v(_mm256_set1_ps(a)) {}
+	__forceinline Float(float a, float b) : v(_mm256_set_ps(b, a, b, a, b, a, b, a)) {}
+	__forceinline Float(float a, float b, float c, float d) 
 		: v(_mm256_set_ps(d, c, b, a, d, c, b, a)) 
 	{}
-	__forceinline Float8(float a, float b, float c, float d, float e, float f, float g, float h) 
+	__forceinline Float(float a, float b, float c, float d, float e, float f, float g, float h) 
 		: v(_mm256_set_ps(h, g, f, e, d, c, b, a)) 
 	{}
-	__forceinline explicit Float8(const Int8& a) : v(_mm256_cvtepi32_ps(a)) {}
+	__forceinline explicit Float(const Int8& a) : v(_mm256_cvtepi32_ps(a)) {}
 
 
 	// Assignment operator
-	__forceinline Float8& operator=(const Float8& other)
+	__forceinline Float& operator=(const Float& other)
 	{
 		v = other.v;
 		return *this;
@@ -39,29 +40,29 @@ struct Float8
 
 
 	// Load/store methods
-	static __forceinline Float8 Load(const void* ptr)
+	static __forceinline Float Load(const void* ptr)
 	{
 		return _mm256_load_ps((float*)ptr);
 	}
 
-	static __forceinline Float8 LoadU(const void* ptr)
+	static __forceinline Float LoadU(const void* ptr)
 	{
 		return _mm256_loadu_ps((float*)ptr);
 	}
 
-	static __forceinline void Store(void* ptr, const Float8& a)
+	static __forceinline void Store(void* ptr, const Float& a)
 	{
 		_mm256_store_ps((float*)ptr, a);
 	}
 
-	static __forceinline void StoreU(void* ptr, const Float8& a)
+	static __forceinline void StoreU(void* ptr, const Float& a)
 	{
 		_mm256_storeu_ps((float*)ptr, a);
 	}
 
 
 	// Broadcast methods
-	static __forceinline Float8 Broadcast(float a)
+	static __forceinline Float Broadcast(float a)
 	{
 		return _mm256_broadcastss_ps(_mm_set1_ps(a));
 	}
