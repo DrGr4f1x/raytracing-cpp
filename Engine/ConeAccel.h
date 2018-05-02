@@ -10,13 +10,13 @@
 
 #include "IAccelerator.h"
 
-struct SphereList
+struct ConeList
 {
 	std::vector<float, aligned_allocator<float, 16>>		centerX;
 	std::vector<float, aligned_allocator<float, 16>>		centerY;
 	std::vector<float, aligned_allocator<float, 16>>		centerZ;
-	std::vector<float, aligned_allocator<float, 16>>		radiusSq;
-	std::vector<float, aligned_allocator<float, 16>>		invRadius;
+	std::vector<float, aligned_allocator<float, 16>>		radius;
+	std::vector<float, aligned_allocator<float, 16>>		height;
 	std::vector<uint32_t, aligned_allocator<uint32_t, 16>>	id;
 
 	__forceinline Math::Vector3 Center(size_t index) const
@@ -25,25 +25,25 @@ struct SphereList
 	}
 };
 
-class SphereAccelerator : public IAccelerator
+class ConeAccelerator : public IAccelerator
 {
 public:
-	SphereAccelerator();
+	ConeAccelerator();
 
 	PrimitiveType GetPrimitiveType() const final
 	{
-		return PrimitiveType::Sphere;
+		return PrimitiveType::Cone;
 	}
 
-	void AddSphere(const Math::Vector3& center, float radius, uint32_t id);
+	void AddCone(const Math::Vector3& center, float radius, float height, uint32_t id);
 
 	// Intersection methods
 	bool Intersect(Ray& ray, Hit& hit) const final;
 
-	void Commit() final;	
+	void Commit() final;
 
 private:
-	SphereList		m_sphereList;
+	ConeList		m_coneList;
 
 	size_t			m_simdSize{ 1 };
 	bool			m_dirty{ false };

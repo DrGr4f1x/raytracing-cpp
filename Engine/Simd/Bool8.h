@@ -46,7 +46,7 @@ struct Bool<8>
 
 	// Type conversion operators
 	__forceinline operator const __m256&() const { return v; }
-	__forceinline operator const __m256i&() const { return _mm256_castps_si256(v); }
+	__forceinline operator const __m256i&() const { return simd_cast<__m256i>(v); }
 
 
 	// Array access operators

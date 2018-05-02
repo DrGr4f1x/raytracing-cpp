@@ -11,5 +11,6 @@
 enum class PrimitiveType
 {
 	Sphere,
+	Cone,
 	Unknown
 };

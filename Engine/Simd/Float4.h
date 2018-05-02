@@ -88,7 +88,7 @@ struct Float<4>
 
 // Unary operators
 __forceinline Float4 operator+(const Float4& a) { return a; }
-__forceinline Float4 operator-(const Float4& a) { return _mm_xor_ps(a, _mm_castsi128_ps(_mm_set1_epi32(0x80000000))); }
+__forceinline Float4 operator-(const Float4& a) { return _mm_xor_ps(a, simd_cast<__m128>(_mm_set1_epi32(0x80000000))); }
 
 
 // Binary operators
@@ -109,7 +109,7 @@ __forceinline Float4 operator/(const Float4& a, float b) { return a / Float4(b);
 __forceinline Float4 operator/(float a, const Float4& b) { return Float4(a) / b; }
 
 __forceinline Float4 operator^(const Float4& a, const Float4& b) { return _mm_xor_ps(a, b); }
-__forceinline Float4 operator^(const Float4& a, const Int4& b) { return _mm_xor_ps(a, _mm_castsi128_ps(b)); }
+__forceinline Float4 operator^(const Float4& a, const Int4& b) { return _mm_xor_ps(a, simd_cast<__m128>(b)); }
 
 
 // Assignment operators
@@ -160,7 +160,7 @@ __forceinline Float4 Max(float a, const Float4& b) { return Max(Float4(a), b); }
 template <int i0, int i1, int i2, int i3>
 __forceinline Float4 Shuffle(const Float4& a)
 {
-	return _mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(a), _MM_SHUFFLE(i3, i2, i1, i0)));
+	return simd_cast<__m128>(_mm_shuffle_epi32(simd_cast<__m128i>(a), _MM_SHUFFLE(i3, i2, i1, i0)));
 }
 
 template <int i0, int i1, int i2, int i3>

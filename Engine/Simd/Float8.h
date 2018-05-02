@@ -94,7 +94,7 @@ struct Float<8>
 
 // Unary operators
 __forceinline Float8 operator+(const Float8& a) { return a; }
-__forceinline Float8 operator-(const Float8& a) { return _mm256_xor_ps(a, _mm256_castsi256_ps(_mm256_set1_epi32(0x80000000))); }
+__forceinline Float8 operator-(const Float8& a) { return _mm256_xor_ps(a, simd_cast<__m256>(_mm256_set1_epi32(0x80000000))); }
 
 
 // Binary operators
@@ -115,7 +115,7 @@ __forceinline Float8 operator/(const Float8& a, float b) { return a / Float8(b);
 __forceinline Float8 operator/(float a, const Float8& b) { return Float8(a) / b; }
 
 __forceinline Float8 operator^(const Float8& a, const Float8& b) { return _mm256_xor_ps(a, b); }
-__forceinline Float8 operator^(const Float8& a, const Int8& b) { return _mm256_xor_ps(a, _mm256_castsi256_ps(b)); }
+__forceinline Float8 operator^(const Float8& a, const Int8& b) { return _mm256_xor_ps(a, simd_cast<__m256>(b)); }
 
 
 // Assignment operators

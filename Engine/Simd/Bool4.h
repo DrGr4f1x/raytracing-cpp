@@ -51,7 +51,7 @@ struct Bool<4>
 
 	// Type conversion operators
 	__forceinline operator const __m128&() const { return v; }
-	__forceinline operator const __m128i&() const {	return _mm_castps_si128(v);	}
+	__forceinline operator const __m128i&() const {	return simd_cast<__m128i>(v);	}
 
 
 	// Array access operators
@@ -97,7 +97,7 @@ __forceinline Bool4 operator^=(Bool4& a, const Bool4& b) { return a = a ^ b; }
 template <int i0, int i1, int i2, int i3>
 __forceinline Bool4 Shuffle(const Bool4& a)
 {
-	return _mm_castsi128_ps(_mm_shuffle_epi32(a, _MM_SHUFFLE(i3, i2, i1, i0)));
+	return simd_cast<__m128>(_mm_shuffle_epi32(a, _MM_SHUFFLE(i3, i2, i1, i0)));
 }
 
 template <int i0, int i1, int i2, int i3>

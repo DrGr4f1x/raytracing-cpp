@@ -143,9 +143,9 @@ __forceinline Int8& operator>>=(Int8& a, int n) { return a = a >> n; }
 
 
 // Comparison operators
-__forceinline Bool8 operator==(const Int8& a, const Int8& b) { return _mm256_castsi256_ps(_mm256_cmpeq_epi32(a, b)); }
-__forceinline Bool8 operator<(const Int8& a, const Int8& b) { return _mm256_castsi256_ps(_mm256_cmpgt_epi32(b, a)); }
-__forceinline Bool8 operator>(const Int8& a, const Int8& b) { return _mm256_castsi256_ps(_mm256_cmpgt_epi32(a, b)); }
+__forceinline Bool8 operator==(const Int8& a, const Int8& b) { return simd_cast<__m256>(_mm256_cmpeq_epi32(a, b)); }
+__forceinline Bool8 operator<(const Int8& a, const Int8& b) { return simd_cast<__m256>(_mm256_cmpgt_epi32(b, a)); }
+__forceinline Bool8 operator>(const Int8& a, const Int8& b) { return simd_cast<__m256>(_mm256_cmpgt_epi32(a, b)); }
 __forceinline Bool8 operator!=(const Int8& a, const Int8& b) { return !(a == b); }
 __forceinline Bool8 operator<=(const Int8& a, const Int8& b) { return !(a > b); }
 __forceinline Bool8 operator>=(const Int8& a, const Int8& b) { return !(a < b); }
@@ -179,7 +179,7 @@ __forceinline Int8 Max(int a, const Int8& b) { return Max(Int8(a), b); }
 template <int i0, int i1, int i2, int i3>
 __forceinline Int8 Shuffle(const Int8& a)
 {
-	return _mm256_castps_si256(_mm256_permute_ps(_mm256_castsi256_ps(a), _MM_SHUFFLE(i3, i2, i1, i0)));
+	return simd_cast<__m256i>(_mm256_permute_ps(simd_cast<__m256>(a), _MM_SHUFFLE(i3, i2, i1, i0)));
 }
 
 template <int i0, int i1, int i2, int i3>
@@ -191,7 +191,7 @@ __forceinline Int8 Shuffle(const Int8& a, const Int8& b)
 template <int i>
 __forceinline Int8 Shuffle(const Int8& a)
 {
-	return _mm256_castps_si256(_mm256_permute_ps(_mm256_castsi256_ps(a), _MM_SHUFFLE(i, i, i, i)));
+	return simd_cast<__m256i>(_mm256_permute_ps(simd_cast<__m256>(a), _MM_SHUFFLE(i, i, i, i)));
 }
 
 #else
@@ -231,22 +231,22 @@ struct Int<8>
 	// Load/store methods
 	static __forceinline Int Load(const void* ptr)
 	{
-		return _mm256_castps_si256(_mm256_load_ps((float*)ptr));
+		return simd_cast<__m256i>(_mm256_load_ps((float*)ptr));
 	}
 
 	static __forceinline Int LoadU(const void* ptr)
 	{
-		return  _mm256_castps_si256(_mm256_loadu_ps((float*)ptr));
+		return  simd_cast<__m256i>(_mm256_loadu_ps((float*)ptr));
 	}
 
 	static __forceinline void Store(void* ptr, const Int& a)
 	{
-		_mm256_store_ps((float*)ptr, _mm256_castsi256_ps(a));
+		_mm256_store_ps((float*)ptr, simd_cast<__m256>(a));
 	}
 
 	static __forceinline void StoreU(void* ptr, const Int& a)
 	{
-		_mm256_storeu_ps((float*)ptr, _mm256_castsi256_ps(a));
+		_mm256_storeu_ps((float*)ptr, simd_cast<__m256>(a));
 	}
 
 
@@ -295,15 +295,15 @@ __forceinline Int8 operator*(const Int8& a, const Int8& b) { return Int8(_mm_mul
 __forceinline Int8 operator*(const Int8& a, int b) { return a * Int8(b); }
 __forceinline Int8 operator*(int a, const Int8& b) { return Int8(a) * b; }
 
-__forceinline Int8 operator&(const Int8& a, const Int8& b) { return _mm256_castps_si256(_mm256_and_ps(_mm256_castsi256_ps(a), _mm256_castsi256_ps(b))); }
+__forceinline Int8 operator&(const Int8& a, const Int8& b) { return simd_cast<__m256i>(_mm256_and_ps(simd_cast<__m256>(a), simd_cast<__m256>(b))); }
 __forceinline Int8 operator&(const Int8& a, int b) { return a & Int8(b); }
 __forceinline Int8 operator&(int a, const Int8& b) { return Int8(a) & b; }
 
-__forceinline Int8 operator|(const Int8& a, const Int8& b) { return _mm256_castps_si256(_mm256_or_ps(_mm256_castsi256_ps(a), _mm256_castsi256_ps(b))); }
+__forceinline Int8 operator|(const Int8& a, const Int8& b) { return simd_cast<__m256i>(_mm256_or_ps(simd_cast<__m256>(a), simd_cast<__m256>(b))); }
 __forceinline Int8 operator|(const Int8& a, int b) { return a | Int8(b); }
 __forceinline Int8 operator|(int a, const Int8& b) { return Int8(a) | b; }
 
-__forceinline Int8 operator^(const Int8& a, const Int8& b) { return _mm256_castps_si256(_mm256_xor_ps(_mm256_castsi256_ps(a), _mm256_castsi256_ps(b))); }
+__forceinline Int8 operator^(const Int8& a, const Int8& b) { return simd_cast<__m256i>(_mm256_xor_ps(simd_cast<__m256>(a), simd_cast<__m256>(b))); }
 __forceinline Int8 operator^(const Int8& a, int b) { return a ^ Int8(b); }
 __forceinline Int8 operator^(int a, const Int8& b) { return Int8(a) ^ b; }
 
@@ -337,15 +337,15 @@ __forceinline Int8& operator>>=(Int8& a, int n) { return a = a >> n; }
 // Comparison operators
 __forceinline Bool8 operator==(const Int8& a, const Int8& b) 
 {
-	return Bool8(_mm_castsi128_ps(_mm_cmpeq_epi32(a.low, b.low)), _mm_castsi128_ps(_mm_cmpeq_epi32(a.high, b.high)));
+	return Bool8(simd_cast<__m128>(_mm_cmpeq_epi32(a.low, b.low)), simd_cast<__m128>(_mm_cmpeq_epi32(a.high, b.high)));
 }
 __forceinline Bool8 operator<(const Int8& a, const Int8& b) 
 { 
-	return Bool8(_mm_castsi128_ps(_mm_cmplt_epi32(a.low, b.low)), _mm_castsi128_ps(_mm_cmplt_epi32(a.high, b.high)));
+	return Bool8(simd_cast<__m128>(_mm_cmplt_epi32(a.low, b.low)), simd_cast<__m128>(_mm_cmplt_epi32(a.high, b.high)));
 }
 __forceinline Bool8 operator>(const Int8& a, const Int8& b) 
 { 
-	return Bool8(_mm_castsi128_ps(_mm_cmpgt_epi32(a.low, b.low)), _mm_castsi128_ps(_mm_cmpgt_epi32(a.high, b.high)));
+	return Bool8(simd_cast<__m128>(_mm_cmpgt_epi32(a.low, b.low)), simd_cast<__m128>(_mm_cmpgt_epi32(a.high, b.high)));
 }
 __forceinline Bool8 operator!=(const Int8& a, const Int8& b) { return !(a == b); }
 __forceinline Bool8 operator<=(const Int8& a, const Int8& b) { return !(a > b); }
@@ -380,7 +380,7 @@ __forceinline Int8 Max(int a, const Int8& b) { return Max(Int8(a), b); }
 template <int i0, int i1, int i2, int i3>
 __forceinline Int8 Shuffle(const Int8& a)
 {
-	return _mm256_castps_si256(_mm256_permute_ps(_mm256_castsi256_ps(a), _MM_SHUFFLE(i3, i2, i1, i0)));
+	return simd_cast<__m256i>(_mm256_permute_ps(simd_cast<__m256>(a), _MM_SHUFFLE(i3, i2, i1, i0)));
 }
 
 template <int i0, int i1, int i2, int i3>
@@ -392,7 +392,7 @@ __forceinline Int8 Shuffle(const Int8& a, const Int8& b)
 template <int i>
 __forceinline Int8 Shuffle(const Int8& a)
 {
-	return _mm256_castps_si256(_mm256_permute_ps(_mm256_castsi256_ps(a), _MM_SHUFFLE(i, i, i, i)));
+	return simd_cast<__m256i>(_mm256_permute_ps(simd_cast<__m256>(a), _MM_SHUFFLE(i, i, i, i)));
 }
 
 #endif

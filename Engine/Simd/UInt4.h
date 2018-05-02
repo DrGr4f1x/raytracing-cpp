@@ -17,7 +17,7 @@ struct UInt<4>
 	__forceinline UInt(__m128i v) : v(v) {}
 	__forceinline UInt(uint32_t a) : v(_mm_set1_epi32(a)) {}
 	__forceinline UInt(uint32_t a, uint32_t b, uint32_t c, uint32_t d) : v(_mm_set_epi32(d, c, b, a)) {}
-	__forceinline explicit UInt(const Bool4& a) : v(_mm_castps_si128(a)) {}
+	__forceinline explicit UInt(const Bool4& a) : v(simd_cast<__m128i>((__m128)a)) {}
 
 
 	// Assignment operator
@@ -142,7 +142,7 @@ __forceinline UInt4 Shuffle(const UInt4& a)
 template <int i0, int i1, int i2, int i3>
 __forceinline UInt4 Shuffle(const UInt4& a, const UInt4& b)
 {
-	return _mm_castps_si128(_mm_shuffle_ps(_mm_castsi128_ps(a), _mm_castsi128_ps(b), _MM_SHUFFLE(i3, i2, i1, i0)));
+	return simd_cast<__m128i>(_mm_shuffle_ps(_mm_castsi128_ps(a), _mm_castsi128_ps(b), _MM_SHUFFLE(i3, i2, i1, i0)));
 }
 
 template <int i>
@@ -155,5 +155,5 @@ __forceinline UInt4 Shuffle(const UInt4& a)
 // Misc math methods
 __forceinline UInt4 Select(const Bool4& m, const UInt4& t, const UInt4& f)
 {
-	return _mm_castps_si128(_mm_blendv_ps(_mm_castsi128_ps(f), _mm_castsi128_ps(t), m));
+	return simd_cast<__m128i>(_mm_blendv_ps(_mm_castsi128_ps(f), _mm_castsi128_ps(t), m));
 }

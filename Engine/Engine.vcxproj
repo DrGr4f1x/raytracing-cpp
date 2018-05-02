@@ -81,6 +81,7 @@
   <ItemGroup>
     <ClInclude Include="Alloc.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ConeAccel.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="IAccelerator.h" />
     <ClInclude Include="Image.h" />
@@ -121,6 +122,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ConeAccel.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="MaterialSet.cpp" />
     <ClCompile Include="Math\Random.cpp" />

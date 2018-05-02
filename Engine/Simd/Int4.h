@@ -18,7 +18,7 @@ struct Int<4>
 	__forceinline explicit Int(__m128 v) : v(_mm_cvtps_epi32(v)) {}
 	__forceinline Int(int a) : v(_mm_set1_epi32(a)) {}
 	__forceinline Int(int a, int b, int c, int d) : v(_mm_set_epi32(d, c, b, a)) {}
-	__forceinline Int(const Bool4& a) : v(_mm_castps_si128((__m128)a)) {}
+	__forceinline Int(const Bool4& a) : v(simd_cast<__m128i>((__m128)a)) {}
 
 
 	// Assignment operator
@@ -136,9 +136,9 @@ __forceinline Int4& operator>>=(Int4& a, int n) { return a = a >> n; }
 
 
 // Comparison operators
-__forceinline Bool4 operator==(const Int4& a, const Int4& b) { return _mm_castsi128_ps(_mm_cmpeq_epi32(a, b)); }
-__forceinline Bool4 operator<(const Int4& a, const Int4& b) { return _mm_castsi128_ps(_mm_cmplt_epi32(a, b)); }
-__forceinline Bool4 operator>(const Int4& a, const Int4& b) { return _mm_castsi128_ps(_mm_cmpgt_epi32(a, b)); }
+__forceinline Bool4 operator==(const Int4& a, const Int4& b) { return simd_cast<__m128>(_mm_cmpeq_epi32(a, b)); }
+__forceinline Bool4 operator<(const Int4& a, const Int4& b) { return simd_cast<__m128>(_mm_cmplt_epi32(a, b)); }
+__forceinline Bool4 operator>(const Int4& a, const Int4& b) { return simd_cast<__m128>(_mm_cmpgt_epi32(a, b)); }
 __forceinline Bool4 operator!=(const Int4& a, const Int4& b) { return !(a == b); }
 __forceinline Bool4 operator<=(const Int4& a, const Int4& b) { return !(a > b); }
 __forceinline Bool4 operator>=(const Int4& a, const Int4& b) { return !(a < b); }
@@ -178,7 +178,7 @@ __forceinline Int4 Shuffle(const Int4& a)
 template <int i0, int i1, int i2, int i3>
 __forceinline Int4 Shuffle(const Int4& a, const Int4& b) 
 {
-	return _mm_castps_si128(_mm_shuffle_ps(_mm_castsi128_ps(a), _mm_castsi128_ps(b), _MM_SHUFFLE(i3, i2, i1, i0)));
+	return simd_cast<__m128i>(_mm_shuffle_ps(_mm_castsi128_ps(a), simd_cast<__m128i>(b), _MM_SHUFFLE(i3, i2, i1, i0)));
 }
 
 template <int i>

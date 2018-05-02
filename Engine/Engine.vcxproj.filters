@@ -120,6 +120,9 @@
     <ClInclude Include="Alloc.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="ConeAccel.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Math\Functions.inl">
@@ -154,6 +157,9 @@
     </ClCompile>
     <ClCompile Include="Simd\Sse.cpp">
       <Filter>Simd\SSE4</Filter>
+    </ClCompile>
+    <ClCompile Include="ConeAccel.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

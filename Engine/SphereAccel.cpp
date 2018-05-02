@@ -102,7 +102,7 @@ bool IntersectSpheres(const SphereList& sphereList, Ray& ray, Hit& hit)
 
 bool IntersectSphere1(const SphereList& sphereList, size_t index, Ray& ray, Hit& hit)
 {
-	Vector3 center = Vector3(sphereList.centerX[index], sphereList.centerY[index], sphereList.centerZ[index]);
+	Vector3 center = sphereList.Center(index);
 	float radiusSq = sphereList.radiusSq[index];
 
 	Vector3 oc = ray.org - center;
@@ -155,7 +155,7 @@ bool IntersectSpheres<1>(const SphereList& sphereList, Ray& ray, Hit& hit)
 	if (anyHit)
 	{
 		hit.pos = ray.Eval(ray.tmax);
-		hit.normal = (hit.pos - Vector3(sphereList.centerX[hit.geomId], sphereList.centerY[hit.geomId], sphereList.centerZ[hit.geomId])) * sphereList.invRadius[hit.geomId];
+		hit.normal = (hit.pos - sphereList.Center(hit.geomId)) * sphereList.invRadius[hit.geomId];
 	}
 
 	return anyHit;
