@@ -99,9 +99,6 @@
     <ClInclude Include="Simd\Avx.h">
       <Filter>Simd\AVX</Filter>
     </ClInclude>
-    <ClInclude Include="Ray4.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="Simd\UInt4.h">
       <Filter>Simd\SSE4</Filter>
     </ClInclude>

@@ -19,9 +19,11 @@ class Scene
 {
 public:
 	
-	bool Intersect(Ray& ray, Hit& hit) const ;
+	void Intersect1(Ray& ray, Hit& hit) const;
 	void Commit();
 	
+	int GetSimdSize() const;
+
 	// Spheres
 	void AddSphere(const Math::Vector3& center, float radius, uint32_t id);
 	

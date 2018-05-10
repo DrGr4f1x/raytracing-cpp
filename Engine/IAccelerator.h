@@ -8,7 +8,9 @@
 
 #pragma once
 
+
 enum class PrimitiveType;
+
 
 class IAccelerator
 {
@@ -16,7 +18,7 @@ public:
 	virtual PrimitiveType GetPrimitiveType() const = 0;
 
 	// Intersection methods
-	virtual bool Intersect(Ray& ray, Hit& hit) const = 0;
+	virtual void Intersect1(Ray& ray, Hit& hit) const = 0;
 
 	virtual void Commit() = 0;
 };

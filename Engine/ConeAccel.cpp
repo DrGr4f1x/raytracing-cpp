@@ -10,59 +10,50 @@
 
 #include "ConeAccel.h"
 
+#include "Scene.h"
+
 
 using namespace Math;
 using namespace std;
 
 
 template<int N>
-bool IntersectCones(const ConeList& coneList, Ray& ray, Hit& hit)
+void IntersectCones(const ConeList& coneList, Ray& ray, Hit& hit)
 {
-	return false;
 }
 
 
-bool IntersectCone1(const ConeList& coneList, size_t index, Ray& ray, Hit& hit)
+void IntersectCone1(const ConeList& coneList, size_t index, Ray& ray, Hit& hit)
 {
-	return false;
 }
 
 template <>
-bool IntersectCones<1>(const ConeList& coneList, Ray& ray, Hit& hit)
+void IntersectCones<1>(const ConeList& coneList, Ray& ray, Hit& hit)
 {
-	bool anyHit = false;
 	Hit tempHit;
 	float closestHit = ray.tmax;
 
-	for (size_t i = 0; i < coneList.centerX.size(); ++i)
+	for (size_t i = 0; i < coneList.GetNumCones(); ++i)
 	{
-		if (IntersectCone1(coneList, i, ray, tempHit))
+		IntersectCone1(coneList, i, ray, hit);
+		if(tempHit.geomId != 0xFFFFFFFF)
 		{
-			anyHit = true;
 			closestHit = ray.tmax;
 			hit = tempHit;
 		}
 	}
 
-	if (anyHit)
+	if (tempHit.geomId != 0xFFFFFFFF)
 	{
 		hit.pos = ray.Eval(ray.tmax);
 		hit.normal = (hit.pos - coneList.Center(hit.geomId));
 	}
-
-	return anyHit;
 }
 
 
-ConeAccelerator::ConeAccelerator()
-{
-	// TODO: Check cpuid to make sure we support the selected SIMD ISA
-#if USE_AVX || USE_AVX2
-	m_simdSize = 8;
-#elif USE_SSE4
-	m_simdSize = 4;
-#endif
-}
+ConeAccelerator::ConeAccelerator(Scene* scene)
+	: m_scene(scene)
+{}
 
 
 void ConeAccelerator::AddCone(const Vector3& center, float radius, float height, uint32_t id)
@@ -78,34 +69,33 @@ void ConeAccelerator::AddCone(const Vector3& center, float radius, float height,
 }
 
 
-bool ConeAccelerator::Intersect(Ray& ray, Hit& hit) const
+void ConeAccelerator::Intersect1(Ray& ray, Hit& hit) const
 {
 	assert(!m_dirty);
 
-	if (m_simdSize == 1)
+	const auto simdSize = m_scene->GetSimdSize();
+
+	if (simdSize == 1)
 	{
-		return IntersectCones<1>(m_coneList, ray, hit);
+		IntersectCones<1>(m_coneList, ray, hit);
 	}
-	else if (m_simdSize == 4)
+	else if (simdSize == 4)
 	{
-		return IntersectCones<1>(m_coneList, ray, hit);
+		IntersectCones<1>(m_coneList, ray, hit);
 	}
-	else if (m_simdSize == 8)
+	else if (simdSize == 8)
 	{
-		return IntersectCones<1>(m_coneList, ray, hit);
-	}
-	else
-	{
-		assert(false);
-		return false;
+		IntersectCones<1>(m_coneList, ray, hit);
 	}
 }
 
 
 void ConeAccelerator::Commit()
 {
+	const auto simdSize = m_scene->GetSimdSize();
+
 	size_t curSize = m_coneList.centerX.size();
-	size_t targetSize = AlignUp(curSize, m_simdSize);
+	size_t targetSize = AlignUp(curSize, simdSize);
 
 	// Pad out the sphere arrays with dummy data until we're a multiple of m_simdSize
 	for (size_t i = curSize; i < targetSize; ++i)

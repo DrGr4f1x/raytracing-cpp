@@ -97,7 +97,6 @@
     <ClInclude Include="Math\Transform.h" />
     <ClInclude Include="Math\Vector.h" />
     <ClInclude Include="Ray.h" />
-    <ClInclude Include="Ray4.h" />
     <ClInclude Include="Sampling.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Simd\Avx.h" />

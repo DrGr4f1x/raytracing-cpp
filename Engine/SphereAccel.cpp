@@ -10,13 +10,15 @@
 
 #include "SphereAccel.h"
 
+#include "Scene.h"
+
 
 using namespace Math;
 using namespace std;
 
 
 template<int N>
-bool IntersectSpheres(const SphereList& sphereList, Ray& ray, Hit& hit)
+void IntersectSpheres(const SphereList& sphereList, Ray& ray, Hit& hit)
 {
 	Float<N> rayOrigX = Float<N>::Broadcast(ray.org.GetX());
 	Float<N> rayOrigY = Float<N>::Broadcast(ray.org.GetY());
@@ -30,7 +32,7 @@ bool IntersectSpheres(const SphereList& sphereList, Ray& ray, Hit& hit)
 
 	UInt<N> id(0xffffffff);
 
-	const size_t numSpheres = sphereList.centerX.size();
+	const size_t numSpheres = sphereList.GetNumSpheres();
 	for (size_t i = 0; i < numSpheres; i += N)
 	{
 		// Load data for 4 spheres
@@ -91,16 +93,12 @@ bool IntersectSpheres(const SphereList& sphereList, Ray& ray, Hit& hit)
 			ray.tmax = bestT;
 			hit.pos = ray.Eval(bestT);
 			hit.normal = (hit.pos - Vector3(sphereList.centerX[hit.geomId], sphereList.centerY[hit.geomId], sphereList.centerZ[hit.geomId])) * sphereList.invRadius[hit.geomId];
-
-			return true;
 		}
 	}
-
-	return false;
 }
 
 
-bool IntersectSphere1(const SphereList& sphereList, size_t index, Ray& ray, Hit& hit)
+void IntersectSphere1(const SphereList& sphereList, size_t index, Ray& ray, Hit& hit)
 {
 	Vector3 center = sphereList.Center(index);
 	float radiusSq = sphereList.radiusSq[index];
@@ -120,57 +118,45 @@ bool IntersectSphere1(const SphereList& sphereList, size_t index, Ray& ray, Hit&
 		{
 			ray.tmax = temp;
 			hit.geomId = sphereList.id[index];
-			return true;
+			return;
 		}
 		temp = (-b + discrSqrt);
 		if (temp < ray.tmax && temp > ray.tmin)
 		{
 			ray.tmax = temp;
 			hit.geomId = sphereList.id[index];
-			return true;
 		}
 	}
-
-	return false;
 }
 
 
 template<>
-bool IntersectSpheres<1>(const SphereList& sphereList, Ray& ray, Hit& hit)
+void IntersectSpheres<1>(const SphereList& sphereList, Ray& ray, Hit& hit)
 {
-	bool anyHit = false;
 	Hit tempHit;
 	float closestHit = ray.tmax;
 
-	for (size_t i = 0; i < sphereList.centerX.size(); ++i)
+	for (size_t i = 0; i < sphereList.GetNumSpheres(); ++i)
 	{
-		if (IntersectSphere1(sphereList, i, ray, tempHit))
+		IntersectSphere1(sphereList, i, ray, tempHit);
+		if(tempHit.geomId != 0xFFFFFFFF)
 		{
-			anyHit = true;
 			closestHit = ray.tmax;
 			hit = tempHit;
 		}
 	}
 
-	if (anyHit)
+	if (tempHit.geomId != 0xFFFFFFFF)
 	{
 		hit.pos = ray.Eval(ray.tmax);
 		hit.normal = (hit.pos - sphereList.Center(hit.geomId)) * sphereList.invRadius[hit.geomId];
 	}
-
-	return anyHit;
 }
 
 
-SphereAccelerator::SphereAccelerator()
-{
-	// TODO: Check cpuid to make sure we support the selected SIMD ISA
-#if USE_AVX || USE_AVX2
-	m_simdSize = 8;
-#elif USE_SSE4
-	m_simdSize = 4;
-#endif
-}
+SphereAccelerator::SphereAccelerator(Scene* scene)
+	: m_scene(scene)
+{}
 
 
 void SphereAccelerator::AddSphere(const Vector3& center, float radius, uint32_t id)
@@ -186,34 +172,33 @@ void SphereAccelerator::AddSphere(const Vector3& center, float radius, uint32_t 
 }
 
 
-bool SphereAccelerator::Intersect(Ray& ray, Hit& hit) const
+void SphereAccelerator::Intersect1(Ray& ray, Hit& hit) const
 {
 	assert(!m_dirty);
 
-	if (m_simdSize == 1)
+	const auto simdSize = m_scene->GetSimdSize();
+
+	if (simdSize == 1)
 	{
-		return IntersectSpheres<1>(m_sphereList, ray, hit);
+		IntersectSpheres<1>(m_sphereList, ray, hit);
 	}
-	else if (m_simdSize == 4)
+	else if (simdSize == 4)
 	{
-		return IntersectSpheres<4>(m_sphereList, ray, hit);
+		IntersectSpheres<4>(m_sphereList, ray, hit);
 	}
-	else if (m_simdSize == 8)
+	else if (simdSize == 8)
 	{
-		return IntersectSpheres<8>(m_sphereList, ray, hit);
-	}
-	else
-	{
-		assert(false);
-		return false;
+		IntersectSpheres<8>(m_sphereList, ray, hit);
 	}
 }
 
 
 void SphereAccelerator::Commit()
 {
-	size_t curSize = m_sphereList.centerX.size();
-	size_t targetSize = AlignUp(curSize, m_simdSize);
+	const auto simdSize = m_scene->GetSimdSize();
+
+	size_t curSize = m_sphereList.GetNumSpheres();
+	size_t targetSize = AlignUp(curSize, simdSize);
 
 	// Pad out the sphere arrays with dummy data until we're a multiple of m_simdSize
 	for (size_t i = curSize; i < targetSize; ++i)

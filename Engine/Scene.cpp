@@ -18,16 +18,12 @@ using namespace std;
 using namespace Math;
 
 
-bool Scene::Intersect(Ray& ray, Hit& hit) const
+void Scene::Intersect1(Ray& ray, Hit& hit) const
 {
 	for (auto& p : m_accelList)
 	{
-		if (p->Intersect(ray, hit))
-		{
-			return true;
-		}
+		p->Intersect1(ray, hit);
 	}
-	return false;
 }
 
 
@@ -37,6 +33,19 @@ void Scene::Commit()
 	{
 		p->Commit();
 	}
+}
+
+
+int Scene::GetSimdSize() const
+{
+	// TODO: Check cpuid to make sure we support the selected SIMD ISA
+#if USE_AVX || USE_AVX2
+	return 8;
+#elif USE_SSE4
+	return 4;
+#else
+	return 1;
+#endif
 }
 
 
@@ -60,7 +69,7 @@ SphereAccelerator* Scene::GetSphereAccelerator()
 
 	if (!accel)
 	{
-		auto newAccel = make_unique<SphereAccelerator>();
+		auto newAccel = make_unique<SphereAccelerator>(this);
 		accel = newAccel.get();
 		m_accelList.emplace_back(move(newAccel));
 	}
