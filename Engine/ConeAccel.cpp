@@ -45,8 +45,9 @@ void IntersectCones<1>(const ConeList& coneList, Ray& ray, Hit& hit)
 
 	if (tempHit.geomId != 0xFFFFFFFF)
 	{
-		hit.pos = ray.Eval(ray.tmax);
-		hit.normal = (hit.pos - coneList.Center(hit.geomId));
+		hit.normalX = (ray.posX + ray.tmax * ray.dirX) - coneList.centerX[hit.geomId];
+		hit.normalY = (ray.posY + ray.tmax * ray.dirY) - coneList.centerY[hit.geomId];
+		hit.normalZ = (ray.posZ + ray.tmax * ray.dirZ) - coneList.centerZ[hit.geomId];
 	}
 }
 

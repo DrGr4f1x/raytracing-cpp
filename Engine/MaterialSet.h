@@ -24,7 +24,7 @@ public:
 	size_t AddMetallic(const Math::Vector3& albedo, float fuzz);
 	size_t AddDielectric(float refractionIndex);
 
-	bool Scatter(size_t index, const Ray& ray, const Hit& hit, Math::Vector3& attenuation, Ray& scattered, uint32_t& state);
+	bool Scatter(const Ray& ray, const Hit& hit, Math::Vector3& attenuation, Ray& scattered, uint32_t& state);
 
 private:
 	std::vector<Math::Vector3>	m_albedoList;

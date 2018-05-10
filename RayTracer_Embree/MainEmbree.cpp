@@ -40,7 +40,7 @@ constexpr int SPHERE_GRID_SIZE = 11;
 // Feature flags
 constexpr bool g_threaded = true;
 constexpr bool g_streams = false;
-constexpr bool g_recursive = false;
+constexpr bool g_recursive = true;
 
 // Stats
 atomic_size_t s_totalRays = 0;
@@ -315,7 +315,7 @@ Vector3 LinearToSRGB(Vector3 linearRGB)
 }
 
 
-Vector3 GetColor_Recursive(const Ray& ray, const RTCScene& scene, int depth, uint32_t& state)
+Vector3 GetColor_Recursive(Ray ray, const RTCScene& scene, int depth, uint32_t& state)
 {
 	Hit hit;
 	++s_totalRays;
@@ -324,13 +324,13 @@ Vector3 GetColor_Recursive(const Ray& ray, const RTCScene& scene, int depth, uin
 	rtcInitIntersectContext(&context);
 
 	RTCRayHit rayHit;
-	rayHit.ray.org_x = ray.org.GetX();
-	rayHit.ray.org_y = ray.org.GetY();
-	rayHit.ray.org_z = ray.org.GetZ();
-	rayHit.ray.dir_x = ray.dir.GetX();
-	rayHit.ray.dir_y = ray.dir.GetY();
-	rayHit.ray.dir_z = ray.dir.GetZ();
-	rayHit.ray.tnear = 0.001f;
+	rayHit.ray.org_x = ray.posX;
+	rayHit.ray.org_y = ray.posY;
+	rayHit.ray.org_z = ray.posZ;
+	rayHit.ray.dir_x = ray.dirX;
+	rayHit.ray.dir_y = ray.dirY;
+	rayHit.ray.dir_z = ray.dirZ;
+	rayHit.ray.tnear = 0.01f;
 	rayHit.ray.tfar = FLT_MAX;
 	rayHit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 	rayHit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
@@ -343,10 +343,14 @@ Vector3 GetColor_Recursive(const Ray& ray, const RTCScene& scene, int depth, uin
 		Ray scattered;
 		Vector3 attenuation;
 
-		hit.pos = ray.Eval(rayHit.ray.tfar);
-		hit.normal = Normalize(Vector3(rayHit.hit.Ng_x, rayHit.hit.Ng_y, rayHit.hit.Ng_z));
+		Vector3 normal = Normalize(Vector3(rayHit.hit.Ng_x, rayHit.hit.Ng_y, rayHit.hit.Ng_z));
+		hit.normalX = normal.GetX();
+		hit.normalY = normal.GetY();
+		hit.normalZ = normal.GetZ();
+		ray.tmax = rayHit.ray.tfar;
+		hit.geomId = rayHit.hit.geomID;
 		
-		if (depth < MAX_RECURSION && materialSet.Scatter(rayHit.hit.geomID, ray, hit, attenuation, scattered, state))
+		if (depth < MAX_RECURSION && materialSet.Scatter(ray, hit, attenuation, scattered, state))
 		{
 			return attenuation * GetColor_Recursive(scattered, scene, depth + 1, state);
 		}
@@ -356,7 +360,7 @@ Vector3 GetColor_Recursive(const Ray& ray, const RTCScene& scene, int depth, uin
 		}
 	}
 
-	Vector3 unitDir = Normalize(ray.dir);
+	Vector3 unitDir = Normalize(Vector3(ray.dirX, ray.dirY, ray.dirZ));
 	float t = 0.5f * (unitDir.GetY() + 1.0f);
 	return (1.0f - t) * Vector3(1.0f, 1.0f, 1.0f) + t * Vector3(0.5f, 0.7f, 1.0f);
 }
@@ -377,13 +381,13 @@ Vector3 GetColor_Iterative(Ray ray, const RTCScene& scene, uint32_t& state)
 
 	do 
 	{
-		rayHit.ray.org_x = ray.org.GetX();
-		rayHit.ray.org_y = ray.org.GetY();
-		rayHit.ray.org_z = ray.org.GetZ();
-		rayHit.ray.dir_x = ray.dir.GetX();
-		rayHit.ray.dir_y = ray.dir.GetY();
-		rayHit.ray.dir_z = ray.dir.GetZ();
-		rayHit.ray.tnear = 0.001f;
+		rayHit.ray.org_x = ray.posX;
+		rayHit.ray.org_y = ray.posY;
+		rayHit.ray.org_z = ray.posZ;
+		rayHit.ray.dir_x = ray.dirX;
+		rayHit.ray.dir_y = ray.dirY;
+		rayHit.ray.dir_z = ray.dirZ;
+		rayHit.ray.tnear = 0.01f;
 		rayHit.ray.tfar = FLT_MAX;
 		rayHit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 		rayHit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
@@ -396,10 +400,14 @@ Vector3 GetColor_Iterative(Ray ray, const RTCScene& scene, uint32_t& state)
 			Ray scattered;
 			Vector3 attenuation;
 
-			hit.pos = ray.Eval(rayHit.ray.tfar);
-			hit.normal = Normalize(Vector3(rayHit.hit.Ng_x, rayHit.hit.Ng_y, rayHit.hit.Ng_z));
+			Vector3 normal = Normalize(Vector3(rayHit.hit.Ng_x, rayHit.hit.Ng_y, rayHit.hit.Ng_z));
+			hit.normalX = normal.GetX();
+			hit.normalY = normal.GetY();
+			hit.normalZ = normal.GetZ();
+			ray.tmax = rayHit.ray.tfar;
+			hit.geomId = rayHit.hit.geomID;
 
-			if (!materialSet.Scatter(rayHit.hit.geomID, ray, hit, attenuation, scattered, state))
+			if (!materialSet.Scatter(ray, hit, attenuation, scattered, state))
 			{
 				color *= Vector3(kZero);
 				break;
@@ -411,7 +419,7 @@ Vector3 GetColor_Iterative(Ray ray, const RTCScene& scene, uint32_t& state)
 		}
 	} while (rayHit.hit.geomID != RTC_INVALID_GEOMETRY_ID && (depth++ < 50));
 
-	Vector3 unitDir = Normalize(ray.dir);
+	Vector3 unitDir = Normalize(Vector3(ray.dirX, ray.dirY, ray.dirZ));
 	float t = 0.5f * (unitDir.GetY() + 1.0f);
 	color *= (1.0f - t) * Vector3(1.0f, 1.0f, 1.0f) + t * Vector3(0.5f, 0.7f, 1.0f);
 
@@ -424,9 +432,6 @@ void RenderSinglePixel(const RTCScene& scene, const Camera& camera, Image& image
 
 	RTCIntersectContext context;
 	rtcInitIntersectContext(&context);
-
-	Ray scattered;
-	Hit hit;
 
 	for (int s = 0; s < NUM_SAMPLES; ++s)
 	{

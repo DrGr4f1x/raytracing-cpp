@@ -84,67 +84,124 @@ float Schlick(float cosine, float refractionIdx)
 }
 
 
-bool MaterialSet::Scatter(size_t index, const Ray& ray, const Hit& hit, Math::Vector3& attenuation, Ray& scattered, uint32_t& state)
+bool MaterialSet::Scatter(const Ray& ray, const Hit& hit, Math::Vector3& attenuation, Ray& scattered, uint32_t& state)
 {
-	switch (m_materialTypeList[index])
+	Vector3 pos(
+		ray.posX + ray.tmax * ray.dirX,
+		ray.posY + ray.tmax * ray.dirY,
+		ray.posZ + ray.tmax * ray.dirZ);
+
+	Vector3 normal(hit.normalX, hit.normalY, hit.normalZ);
+
+	switch (m_materialTypeList[hit.geomId])
 	{
 	case MaterialType::Lambertian:
 	{
-		Vector3 target = hit.pos + hit.normal + UniformUnitSphere3d(state);
-		scattered = Ray(hit.pos, Normalize(target - hit.pos), 0.001f, FLT_MAX);
-		attenuation = m_albedoList[index];
+		Vector3 target = pos + normal + UniformUnitSphere3d(state);
+
+		scattered.posX = pos.GetX();
+		scattered.posY = pos.GetY();
+		scattered.posZ = pos.GetZ();
+		scattered.tmin = 0.01f;
+
+		Vector3 dir = Normalize(target - pos);
+		scattered.dirX = dir.GetX();
+		scattered.dirY = dir.GetY();
+		scattered.dirZ = dir.GetZ();
+		scattered.tmax = FLT_MAX;
+
+		attenuation = m_albedoList[hit.geomId];
 		return true;
 	}
 	break;
 
 	case MaterialType::Metallic:
 	{
-		Vector3 reflected = Reflect(Normalize(ray.dir), hit.normal);
-		scattered = Ray(hit.pos, Normalize(reflected + m_miscFloatList[index] * UniformUnitSphere3d(state)), 0.001f, FLT_MAX);
-		attenuation = m_albedoList[index];
-		return (Dot(scattered.dir, hit.normal) > 0.0f);
+		Vector3 reflected = Reflect(Vector3(ray.dirX, ray.dirY, ray.dirZ), normal);
+
+		scattered.posX = pos.GetX();
+		scattered.posY = pos.GetY();
+		scattered.posZ = pos.GetZ();
+		scattered.tmin = 0.01f;
+
+		Vector3 dir = Normalize(reflected + m_miscFloatList[hit.geomId] * UniformUnitSphere3d(state));
+		scattered.dirX = dir.GetX();
+		scattered.dirY = dir.GetY();
+		scattered.dirZ = dir.GetZ();
+		scattered.tmax = FLT_MAX;
+
+		attenuation = m_albedoList[hit.geomId];
+		return (Dot(Vector3(scattered.dirX, scattered.dirY, scattered.dirZ), normal) > 0.0f);
 	}
 	break;
 
 	case MaterialType::Dielectric:
 	{
 		Vector3 outNormal{ kZero };
-		Vector3 reflected = Reflect(ray.dir, hit.normal);
+		Vector3 rayDir(ray.dirX, ray.dirY, ray.dirZ);
+		Vector3 reflected = Reflect(rayDir, normal);
 		float ni_over_nt = 0.0f;
 		attenuation = Vector3{ kOne };
 		Vector3 refracted{ kZero };
 		float reflectProb = 1.0f;
 		float cosine = 0.0f;
-		float refractionIndex = m_miscFloatList[index];
-		if (Dot(ray.dir, hit.normal) > 0.0f)
+		float refractionIndex = m_miscFloatList[hit.geomId];
+		if (Dot(rayDir, normal) > 0.0f)
 		{
-			outNormal = -hit.normal;
+			outNormal = -normal;
 			ni_over_nt = refractionIndex;
-			cosine = refractionIndex * Dot(ray.dir, hit.normal) / Length(ray.dir);
+			cosine = refractionIndex * Dot(rayDir, normal) * LengthRecip(rayDir);
 		}
 		else
 		{
-			outNormal = hit.normal;
+			outNormal = normal;
 			ni_over_nt = 1.0f / refractionIndex;
-			cosine = -Dot(ray.dir, hit.normal) / Length(ray.dir);
+			cosine = -Dot(rayDir, normal) * LengthRecip(rayDir);
 		}
 
-		if (Refract(ray.dir, outNormal, ni_over_nt, refracted))
+		if (Refract(rayDir, outNormal, ni_over_nt, refracted))
 		{
 			reflectProb = Schlick(cosine, refractionIndex);
 		}
 		else
 		{
-			scattered = Ray(hit.pos, Normalize(reflected), 0.001f, FLT_MAX);
+			scattered.posX = pos.GetX();
+			scattered.posY = pos.GetY();
+			scattered.posZ = pos.GetZ();
+			scattered.tmin = 0.01f;
+
+			Vector3 dir = Normalize(reflected);
+			scattered.dirX = dir.GetX();
+			scattered.dirY = dir.GetY();
+			scattered.dirZ = dir.GetZ();
+			scattered.tmax = FLT_MAX;
 		}
 
 		if (UniformFloat01(state) < reflectProb)
 		{
-			scattered = Ray(hit.pos, Normalize(reflected), 0.001f, FLT_MAX);
+			scattered.posX = pos.GetX();
+			scattered.posY = pos.GetY();
+			scattered.posZ = pos.GetZ();
+			scattered.tmin = 0.01f;
+
+			Vector3 dir = Normalize(reflected);
+			scattered.dirX = dir.GetX();
+			scattered.dirY = dir.GetY();
+			scattered.dirZ = dir.GetZ();
+			scattered.tmax = FLT_MAX;
 		}
 		else
 		{
-			scattered = Ray(hit.pos, Normalize(refracted), 0.001f, FLT_MAX);
+			scattered.posX = pos.GetX();
+			scattered.posY = pos.GetY();
+			scattered.posZ = pos.GetZ();
+			scattered.tmin = 0.01f;
+
+			Vector3 dir = Normalize(reflected);
+			scattered.dirX = dir.GetX();
+			scattered.dirY = dir.GetY();
+			scattered.dirZ = dir.GetZ();
+			scattered.tmax = FLT_MAX;
 		}
 
 		return true;

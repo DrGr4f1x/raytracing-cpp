@@ -10,33 +10,24 @@
 
 #include "Math\Vector.h"
 
-
-struct Ray
+__declspec(align(16)) struct Ray
 {
-public:
-	Ray() = default;
-	Ray(const Math::Vector3& org, const Math::Vector3& dir, float tmin, float tmax)
-		: org(org)
-		, dir(dir)
-		, tmin(tmin)
-		, tmax(tmax)
-	{}
-
-	Math::Vector3 Eval(float t) const
-	{
-		return org + t * dir;
-	}
-
-	Math::Vector3 org;
-	Math::Vector3 dir;
+	float posX;
+	float posY;
+	float posZ;
 	float tmin;
+
+	float dirX;
+	float dirY;
+	float dirZ;
 	float tmax;
 };
 
 
-struct Hit
+__declspec(align(16)) struct Hit
 {
-	Math::Vector3 pos;
-	Math::Vector3 normal;
+	float normalX;
+	float normalY;
+	float normalZ;
 	uint32_t geomId;
 };

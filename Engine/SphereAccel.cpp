@@ -20,12 +20,12 @@ using namespace std;
 template<int N>
 void IntersectSpheres(const SphereList& sphereList, Ray& ray, Hit& hit)
 {
-	Float<N> rayOrigX = Float<N>::Broadcast(ray.org.GetX());
-	Float<N> rayOrigY = Float<N>::Broadcast(ray.org.GetY());
-	Float<N> rayOrigZ = Float<N>::Broadcast(ray.org.GetZ());
-	Float<N> rayDirX = Float<N>::Broadcast(ray.dir.GetX());
-	Float<N> rayDirY = Float<N>::Broadcast(ray.dir.GetY());
-	Float<N> rayDirZ = Float<N>::Broadcast(ray.dir.GetZ());
+	Float<N> rayOrigX = Float<N>::Broadcast(ray.posX);
+	Float<N> rayOrigY = Float<N>::Broadcast(ray.posY);
+	Float<N> rayOrigZ = Float<N>::Broadcast(ray.posZ);
+	Float<N> rayDirX = Float<N>::Broadcast(ray.dirX);
+	Float<N> rayDirY = Float<N>::Broadcast(ray.dirY);
+	Float<N> rayDirZ = Float<N>::Broadcast(ray.dirZ);
 
 	Float<N> tmin = Float<N>::Broadcast(ray.tmin);
 	Float<N> hitT = Float<N>::Broadcast(ray.tmax);
@@ -91,8 +91,15 @@ void IntersectSpheres(const SphereList& sphereList, Ray& ray, Hit& hit)
 			}
 
 			ray.tmax = bestT;
-			hit.pos = ray.Eval(bestT);
-			hit.normal = (hit.pos - Vector3(sphereList.centerX[hit.geomId], sphereList.centerY[hit.geomId], sphereList.centerZ[hit.geomId])) * sphereList.invRadius[hit.geomId];
+			
+			const float invRadius = sphereList.invRadius[hit.geomId];
+
+			hit.normalX = (ray.posX + ray.tmax * ray.dirX) - sphereList.centerX[hit.geomId];
+			hit.normalY = (ray.posY + ray.tmax * ray.dirY) - sphereList.centerY[hit.geomId];
+			hit.normalZ = (ray.posZ + ray.tmax * ray.dirZ) - sphereList.centerZ[hit.geomId];
+			hit.normalX *= invRadius;
+			hit.normalY *= invRadius;
+			hit.normalZ *= invRadius;
 		}
 	}
 }
@@ -103,8 +110,8 @@ void IntersectSphere1(const SphereList& sphereList, size_t index, Ray& ray, Hit&
 	Vector3 center = sphereList.Center(index);
 	float radiusSq = sphereList.radiusSq[index];
 
-	Vector3 oc = ray.org - center;
-	float b = Dot(oc, ray.dir);
+	Vector3 oc = Vector3(ray.posX, ray.posY, ray.posZ) - center;
+	float b = Dot(oc, Vector3(ray.dirX, ray.dirY, ray.dirZ));
 	float c = Dot(oc, oc) - radiusSq;
 	float discriminant = b * b - c;
 
@@ -148,8 +155,14 @@ void IntersectSpheres<1>(const SphereList& sphereList, Ray& ray, Hit& hit)
 
 	if (tempHit.geomId != 0xFFFFFFFF)
 	{
-		hit.pos = ray.Eval(ray.tmax);
-		hit.normal = (hit.pos - sphereList.Center(hit.geomId)) * sphereList.invRadius[hit.geomId];
+		const float invRadius = sphereList.invRadius[hit.geomId];
+
+		hit.normalX = (ray.posX + ray.tmax * ray.dirX) - sphereList.centerX[hit.geomId];
+		hit.normalY = (ray.posY + ray.tmax * ray.dirY) - sphereList.centerY[hit.geomId];
+		hit.normalZ = (ray.posZ + ray.tmax * ray.dirZ) - sphereList.centerZ[hit.geomId];
+		hit.normalX *= invRadius;
+		hit.normalY *= invRadius;
+		hit.normalZ *= invRadius;
 	}
 }
 

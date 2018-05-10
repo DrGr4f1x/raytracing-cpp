@@ -33,5 +33,20 @@ Ray Camera::GetRay(float u, float v, uint32_t& state) const
 {
 	Vector3 rndDisk = m_lensRadius * UniformUnitDisk(state);
 	Vector3 offset = m_u * rndDisk.GetX() + m_v * rndDisk.GetY();
-	return Ray(m_origin + offset, Normalize(m_lowerLeft + u * m_horizontal + v * m_vertical - m_origin - offset), 0.01f, FLT_MAX);
+
+	Vector3 pos = m_origin + offset;
+	Vector3 dir = Normalize(m_lowerLeft + u * m_horizontal + v * m_vertical - m_origin - offset);
+
+	Ray ray;
+	ray.posX = pos.GetX();
+	ray.posY = pos.GetY();
+	ray.posZ = pos.GetZ();
+	ray.tmin = 0.01f;
+
+	ray.dirX = dir.GetX();
+	ray.dirY = dir.GetY();
+	ray.dirZ = dir.GetZ();
+	ray.tmax = FLT_MAX;
+
+	return ray;
 }
